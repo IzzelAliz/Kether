@@ -1,7 +1,10 @@
 allprojects {
     group 'io.izzel.kether'
     version '1.0.0'
-    project.buildDir = rootProject.buildDir
+
+    tasks.withType(Jar) {
+        destinationDirectory = file("$rootDir/build/libs")
+    }
 
     tasks.withType(JavaCompile) {
         options.encoding = 'UTF-8'
