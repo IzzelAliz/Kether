@@ -10,3 +10,7 @@ allprojects {
         options.encoding = 'UTF-8'
     }
 }
+
+task clean {
+    fileTree("$rootDir/build").each { it.delete() }
+}
