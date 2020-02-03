@@ -1,6 +1,6 @@
 allprojects {
     group 'io.izzel.kether'
-    version '1.0-SNAPSHOT'
+    version '1.0.0'
     project.buildDir = rootProject.buildDir
 
     tasks.withType(JavaCompile) {
