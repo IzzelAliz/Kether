@@ -1,0 +1,9 @@
+allprojects {
+    group 'io.izzel.kether'
+    version '1.0-SNAPSHOT'
+    project.buildDir = rootProject.buildDir
+
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+    }
+}

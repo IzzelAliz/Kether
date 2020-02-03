@@ -1,0 +1,3 @@
+name: Kether
+main: io.izzel.kether.bukkit.KetherPlugin
+version: '${version}'
