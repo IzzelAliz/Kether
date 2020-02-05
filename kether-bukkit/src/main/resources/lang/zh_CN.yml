@@ -2,6 +2,7 @@ load-error:
   fail: '加载任务脚本 {0} 失败'
   block-exception: '代码块 "{0}" 的第 {1} 行: {2}'
   unknown-action: '未知的任务动作 {0}'
+  not-match: '应输入 {0} 实际为 {1}'
   string-not-close: '字符串没有匹配的结尾 (""")'
   not-integer: '{0} 不是整数'
   not-long: '{0} 不是整数'

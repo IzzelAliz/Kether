@@ -11,6 +11,9 @@ public class KetherTypes {
         registry.registerAction("call", CallAction.parser());
         registry.registerAction("data", DataAction.parser());
         registry.registerAction("if", IfAction.parser(service));
+        registry.registerAction("goto", GotoAction.parser());
+        registry.registerAction("while", WhileAction.parser(service));
+        registry.registerAction("repeat", RepeatAction.parser(service));
     }
 
 }

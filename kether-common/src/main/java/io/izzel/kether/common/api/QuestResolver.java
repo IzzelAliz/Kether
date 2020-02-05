@@ -29,6 +29,13 @@ public interface QuestResolver<CTX extends QuestContext> {
 
     <T> QuestAction<T, CTX> nextAction();
 
+    default void consume(String value) {
+        String element = nextElement();
+        if (!element.equals(value)) {
+            throw LocalizedException.of("not-match", value, element);
+        }
+    }
+
     default int nextInt() {
         String element = nextElement();
         return Coerce.asInteger(element).orElseThrow(LocalizedException.supply("not-integer", element));

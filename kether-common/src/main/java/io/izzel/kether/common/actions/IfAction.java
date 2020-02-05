@@ -1,14 +1,15 @@
 package io.izzel.kether.common.actions;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import io.izzel.kether.common.api.*;
+import io.izzel.kether.common.api.KetherCompleters;
+import io.izzel.kether.common.api.QuestAction;
+import io.izzel.kether.common.api.QuestActionParser;
+import io.izzel.kether.common.api.QuestContext;
+import io.izzel.kether.common.api.QuestService;
 import io.izzel.kether.common.util.Coerce;
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public class IfAction<U, CTX extends QuestContext> implements QuestAction<U, CTX> {
+final class IfAction<U, CTX extends QuestContext> implements QuestAction<U, CTX> {
 
     private final QuestAction<?, CTX> condition;
     private final QuestAction<U, CTX> trueAction;
@@ -59,7 +60,7 @@ public class IfAction<U, CTX extends QuestContext> implements QuestAction<U, CTX
         return QuestActionParser.<U, CTX>of(
             resolver -> {
                 QuestAction<?, CTX> condition = resolver.nextAction();
-                Preconditions.checkArgument(resolver.nextElement().equals("then"));
+                resolver.consume("then");
                 QuestAction<U, CTX> trueAction = resolver.nextAction();
                 if (resolver.hasNext()) {
                     resolver.mark();
