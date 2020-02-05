@@ -29,9 +29,15 @@ public interface QuestContext {
 
     void setJump(String block, int index);
 
-    QuestContext forkChild();
+    QuestContext forkChild(String key);
+
+    CompletableFuture<Void> runActions();
 
     Executor getExecutor();
+
+    void setDataStore(String key);
+
+    String getDataStore();
 
     <T, C extends QuestContext> CompletableFuture<T> runAction(String key, QuestAction<T, C> action);
 
@@ -47,6 +53,10 @@ public interface QuestContext {
     @SuppressWarnings("unchecked")
     default <T> T getPersistentData(String key) {
         return (T) getPersistentData().get(key);
+    }
+
+    default void setPersistentData(String key, Object value) {
+        getPersistentData().put(key, value);
     }
 
     /**

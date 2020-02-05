@@ -10,6 +10,10 @@ public interface KetherSerializer<T> {
 
     Optional<T> deserialize(Map<String, Object> map);
 
+    static <T> KetherSerializer<T> gson(Class<T> cl) {
+        return new KetherGsonSerializer<>(cl);
+    }
+
     static <T> KetherSerializer<T> of(
         Function<T, Map<String, Object>> serializer,
         Function<Map<String, Object>, T> deserializer

@@ -7,11 +7,15 @@ public interface QuestActionParser {
 
     <T, C extends QuestContext> QuestAction<T, C> resolve(QuestResolver<C> resolver);
 
+    /**
+     * @param params a mutable list
+     * @return params
+     */
     List<String> complete(List<String> params);
 
     @SuppressWarnings("unchecked")
     static <T, C extends QuestContext> QuestActionParser of(
-        Function<QuestResolver<C>, QuestAction<T,C>> resolveFunction,
+        Function<QuestResolver<C>, QuestAction<T, C>> resolveFunction,
         Function<List<String>, List<String>> completeFunction
     ) {
         return new QuestActionParser() {

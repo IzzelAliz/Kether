@@ -1,5 +1,6 @@
 package io.izzel.kether.common.actions;
 
+import io.izzel.kether.common.api.KetherCompleters;
 import io.izzel.kether.common.api.QuestAction;
 import io.izzel.kether.common.api.QuestActionParser;
 import io.izzel.kether.common.api.QuestContext;
@@ -37,7 +38,7 @@ final class AwaitAction<T, CTX extends QuestContext> implements QuestAction<T, C
     public static QuestActionParser parser(QuestService<?> service) {
         return QuestActionParser.of(
             resolver -> new AwaitAction<>(resolver.nextAction()),
-            KetherTypes.completeAction(service)
+            KetherCompleters.action(service)
         );
     }
 }
