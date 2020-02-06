@@ -37,6 +37,22 @@ public final class KetherCompleters {
         };
     }
 
+    @SafeVarargs
+    public static Function<List<String>, List<String>> firstParsing(Function<List<String>, List<String>>... functions) {
+        return params -> {
+            ImmutableList<String> copy = ImmutableList.copyOf(params);
+            for (Function<List<String>, List<String>> function : functions) {
+                try {
+                    return function.apply(params);
+                } catch (Exception e) {
+                    params.clear();
+                    params.addAll(copy);
+                }
+            }
+            throw new IllegalArgumentException();
+        };
+    }
+
     public static Function<List<String>, List<String>> constant(String value) {
         return params -> {
             if (!params.isEmpty()) {

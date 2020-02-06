@@ -26,4 +26,6 @@ public interface QuestService<CTX extends QuestContext> {
 
     String getLocalizedText(String node, Object... params);
 
+    QuestStorage getStorage();
+
 }

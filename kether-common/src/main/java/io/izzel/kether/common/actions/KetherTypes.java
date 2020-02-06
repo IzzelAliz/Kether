@@ -1,5 +1,7 @@
 package io.izzel.kether.common.actions;
 
+import io.izzel.kether.common.api.ExitStatus;
+import io.izzel.kether.common.api.KetherSerializer;
 import io.izzel.kether.common.api.QuestContext;
 import io.izzel.kether.common.api.QuestRegistry;
 import io.izzel.kether.common.api.QuestService;
@@ -14,6 +16,9 @@ public class KetherTypes {
         registry.registerAction("goto", GotoAction.parser());
         registry.registerAction("while", WhileAction.parser(service));
         registry.registerAction("repeat", RepeatAction.parser(service));
+        registry.registerAction("exit", ExitAction.parser());
+
+        registry.registerPersistentDataType(ExitStatus.class, KetherSerializer.gson(ExitStatus.class));
     }
 
 }

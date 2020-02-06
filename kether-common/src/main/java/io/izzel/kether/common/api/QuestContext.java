@@ -25,7 +25,7 @@ public interface QuestContext {
      */
     <C extends QuestContext> Optional<QuestAction<?, C>> nextAction();
 
-    void exit();
+    void exit(ExitStatus exitStatus);
 
     void setJump(String block, int index);
 
