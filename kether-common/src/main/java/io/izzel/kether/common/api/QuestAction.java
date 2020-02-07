@@ -8,6 +8,10 @@ public interface QuestAction<T, CTX extends QuestContext> {
 
     CompletableFuture<T> process(CTX context);
 
+    default String getDataPrefix() {
+        return this.getClass().getSimpleName().toLowerCase();
+    }
+
     static <T, C extends QuestContext> QuestAction<T, C> noop() {
         return new QuestAction<T, C>() {
             @Override

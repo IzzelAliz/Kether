@@ -26,7 +26,7 @@ final class RepeatAction<CTX extends QuestContext> implements QuestAction<Void, 
 
     @Override
     public CompletableFuture<Void> process(CTX context) {
-        int cur = Coerce.toInteger(context.getPersistentData().getOrDefault("time", 0));
+        int cur = Coerce.toInteger(context.getTempData().getOrDefault("time", 0));
         if (isAsync()) {
             CompletableFuture<Void> future = new CompletableFuture<>();
             process(context, future, cur);
@@ -42,7 +42,7 @@ final class RepeatAction<CTX extends QuestContext> implements QuestAction<Void, 
     private void process(CTX context, CompletableFuture<Void> future, int cur) {
         if (cur < time) {
             context.runAction("repeat", action).thenRunAsync(() -> {
-                context.setPersistentData("time", cur + 1);
+                context.setTempData("time", cur + 1);
                 process(context, future, cur + 1);
             }, context.getExecutor());
         } else {

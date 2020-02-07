@@ -29,8 +29,17 @@ final class ExitAction<CTX extends QuestContext> implements QuestAction<Void, CT
     @Override
     public CompletableFuture<Void> process(CTX context) {
         long actual = timeout == 0 ? 0 : System.currentTimeMillis() + timeout;
-        context.exit(new ExitStatus(running, waiting, actual));
+        context.setExitStatus(new ExitStatus(running, waiting, actual));
         return CompletableFuture.completedFuture(null);
+    }
+
+    @Override
+    public String toString() {
+        return "ExitAction{" +
+            "running=" + running +
+            ", waiting=" + waiting +
+            ", timeout=" + timeout +
+            '}';
     }
 
     public static QuestActionParser parser() {

@@ -22,7 +22,7 @@ final class CallAction<CTX extends QuestContext> implements QuestAction<Void, CT
 
     @Override
     public CompletableFuture<Void> process(CTX context) {
-        QuestContext child = context.forkChild("call");
+        QuestContext child = context.createChild("call");
         child.setJump(block, 0);
         return child.runActions();
     }

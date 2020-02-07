@@ -9,55 +9,44 @@ public interface QuestContext {
 
     Quest getQuest();
 
+    String getPlayerIdentifier();
+
     String getRunningBlock();
 
     int getIndex();
 
-    /**
-     * Advance the index, or jump to specific location, then return next possible action,
-     * or return empty if
-     * <p>
-     * (1) the index reach the end, or
-     * <p>
-     * (2) the {@link #exit} method is called.
-     *
-     * @return optional next action
-     */
-    <C extends QuestContext> Optional<QuestAction<?, C>> nextAction();
+    void setExitStatus(ExitStatus exitStatus);
 
-    void exit(ExitStatus exitStatus);
+    Optional<ExitStatus> getExitStatus();
 
     void setJump(String block, int index);
 
-    QuestContext forkChild(String key);
+    <C extends QuestContext> C createChild(String key);
 
     CompletableFuture<Void> runActions();
 
     Executor getExecutor();
 
-    void setDataStore(String key);
+    void setDataKey(String key);
 
-    String getDataStore();
+    String getDataKey();
 
     <T, C extends QuestContext> CompletableFuture<T> runAction(String key, QuestAction<T, C> action);
 
     /**
-     * Return a mutable map storing persistent data.
+     * Return a mutable map storing temp data.
      * <p>
      * When the action completes its process, all data stored in will be removed.
      *
-     * @return a mutable map storing persistent data
+     * @return a mutable map storing temp data
      */
+    Map<String, Object> getTempData();
+
+    default void setTempData(String key, Object value) {
+        getTempData().put(key, value);
+    }
+
     Map<String, Object> getPersistentData();
-
-    @SuppressWarnings("unchecked")
-    default <T> T getPersistentData(String key) {
-        return (T) getPersistentData().get(key);
-    }
-
-    default void setPersistentData(String key, Object value) {
-        getPersistentData().put(key, value);
-    }
 
     /**
      * The closable will called immediately when action is complete, and(or)
@@ -65,5 +54,7 @@ public interface QuestContext {
      *
      * @param closeable resources to clean when action complete.
      */
-    void addClosable(AutoCloseable closeable);
+    <T extends AutoCloseable> T addClosable(T closeable);
+
+    void terminate();
 }

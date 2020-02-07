@@ -22,7 +22,7 @@ final class DataAction<CTX extends QuestContext> implements QuestAction<Void, CT
 
     @Override
     public CompletableFuture<Void> process(CTX context) {
-        context.setDataStore(key);
+        context.setDataKey(key);
         return CompletableFuture.completedFuture(null);
     }
 

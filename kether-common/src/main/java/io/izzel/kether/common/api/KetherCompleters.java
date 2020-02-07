@@ -82,7 +82,7 @@ public final class KetherCompleters {
                         .filter(it -> it.startsWith(remove))
                         .collect(Collectors.toList());
                 } else {
-                    Optional<QuestActionParser> optional = service.getParserById(remove);
+                    Optional<QuestActionParser> optional = service.getParser(remove);
                     if (optional.isPresent()) {
                         return optional.get().complete(params);
                     } else {

@@ -10,9 +10,13 @@ public interface QuestService<CTX extends QuestContext> {
 
     Collection<String> getRegisteredActions();
 
-    Optional<QuestActionParser> getParserById(String id);
+    Optional<QuestActionParser> getParser(String id);
+
+    Optional<Quest> getQuest(String id);
 
     QuestRegistry getRegistry();
+
+    <T> Optional<KetherSerializer<T>> getPersistentDataSerializer(Class<T> cl);
 
     void startQuest(CTX context);
 

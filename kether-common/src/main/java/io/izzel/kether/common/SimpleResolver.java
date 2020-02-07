@@ -90,7 +90,7 @@ public final class SimpleResolver<CTX extends QuestContext> implements QuestReso
     public <T> QuestAction<T, CTX> nextAction() {
         skipBlank();
         String element = nextElement();
-        Optional<QuestActionParser> optional = service.getParserById(element);
+        Optional<QuestActionParser> optional = service.getParser(element);
         if (optional.isPresent()) {
             return optional.get().resolve(this);
         } else {
