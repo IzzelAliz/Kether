@@ -1,5 +1,6 @@
 package io.izzel.kether.bukkit;
 
+import io.izzel.kether.bukkit.actions.KetherBukkitTypes;
 import io.izzel.kether.bukkit.config.KetherBukkitConfig;
 import io.izzel.kether.common.actions.KetherTypes;
 import io.izzel.kether.common.api.QuestService;
@@ -35,6 +36,7 @@ public class KetherPlugin extends Plugin {
             KetherBukkitQuestService.instance().getRegistry(),
             KetherBukkitQuestService.instance()
         );
+        KetherBukkitTypes.registerTypes(KetherBukkitQuestService.instance());
     }
 
     @Override
