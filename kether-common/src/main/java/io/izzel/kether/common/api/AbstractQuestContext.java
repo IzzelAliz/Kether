@@ -1,7 +1,9 @@
 package io.izzel.kether.common.api;
 
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -194,8 +196,16 @@ public abstract class AbstractQuestContext implements QuestContext {
         }, getExecutor());
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Map<String, Object> getTempData() {
+        if (tempData == null) { // lazy load
+            if (parent != null) {
+                tempData = (Map<String, Object>) parent.getTempData().computeIfAbsent(childKey, k -> new HashMap<>());
+            } else {
+                tempData = new HashMap<>();
+            }
+        }
         return tempData;
     }
 
@@ -209,6 +219,22 @@ public abstract class AbstractQuestContext implements QuestContext {
     public <T extends AutoCloseable> T addClosable(T closeable) {
         this.closeables.addFirst(closeable);
         return closeable;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AbstractQuestContext that = (AbstractQuestContext) o;
+        return getDataKey().equals(that.getDataKey()) &&
+            Objects.equals(getTempData(), that.getTempData()) &&
+            getPersistentData().equals(that.getPersistentData()) &&
+            Objects.equals(getExitStatus(), that.getExitStatus());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getDataKey(), getTempData(), getPersistentData(), getExitStatus());
     }
 
     @SuppressWarnings("NullableProblems")

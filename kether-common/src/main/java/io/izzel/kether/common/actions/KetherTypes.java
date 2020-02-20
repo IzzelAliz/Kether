@@ -19,7 +19,7 @@ public class KetherTypes {
         registry.registerAction("exit", ExitAction.parser());
         registry.registerAction("require", RequireAction.parser(service));
 
-        registry.registerPersistentDataType(ExitStatus.class, KetherSerializer.gson(ExitStatus.class));
+        registry.registerPersistentDataType("exit_status", ExitStatus.class, KetherSerializer.gson(ExitStatus.class));
     }
 
 }

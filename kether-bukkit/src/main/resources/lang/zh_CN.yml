@@ -9,3 +9,10 @@ load-error:
   not-long: '{0} 不是整数'
   not-double: '{0} 不是小数'
   not-duration: '{0} 不是持续时间 (1d2h3m4s)'
+  unknown-error: '加载任务时发生错误：{0}'
+config:
+  identifier_provider: '使用 {0} 存储玩家信息'
+  storage: '使用 {0} 存储玩家任务数据'
+storage-init: '数据存储初始化失败：{0}'
+quest-load: '加载了 {0} 个任务'
+waiting-save: '等待所有数据保存'

@@ -1,0 +1,8 @@
+player_identifier: uuid
+storage:
+  type: local_yaml
+  folder: 'data'
+  # type: mariadb
+  # jdbcUrl: 'jdbc:mysql://root:password@localhost:3306'
+quest:
+  folder: 'quests'
