@@ -27,6 +27,7 @@ public abstract class AbstractQuestContext implements QuestContext {
     private boolean doJump;
     private String jumpBlock;
     private int jumpIndex;
+    private boolean modified = false;
 
     protected Deque<AutoCloseable> closeables = new LinkedBlockingDeque<>();
     protected Deque<AbstractQuestContext> children = new LinkedBlockingDeque<>();
@@ -77,6 +78,7 @@ public abstract class AbstractQuestContext implements QuestContext {
         } else {
             setIndex(getIndex() + 1);
         }
+        modified = true;
     }
 
     protected Deque<AbstractQuestContext> getChildren() {
@@ -235,6 +237,15 @@ public abstract class AbstractQuestContext implements QuestContext {
     @Override
     public int hashCode() {
         return Objects.hash(getDataKey(), getTempData(), getPersistentData(), getExitStatus());
+    }
+
+    @Override
+    public boolean compareChange(QuestContext context) {
+        if (context == null) {
+            return !modified && tempData.isEmpty() && persistentData.isEmpty();
+        } else {
+            return this.equals(context);
+        }
     }
 
     @SuppressWarnings("NullableProblems")

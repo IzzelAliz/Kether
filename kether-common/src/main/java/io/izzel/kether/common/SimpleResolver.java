@@ -69,7 +69,7 @@ public final class SimpleResolver<CTX extends QuestContext> implements QuestReso
             return ret;
         } else {
             int begin = index;
-            while (index < arr.length && Character.isWhitespace(arr[index])) {
+            while (index < arr.length && !Character.isWhitespace(arr[index])) {
                 index++;
             }
             return new String(arr, begin, index - begin);
@@ -90,7 +90,7 @@ public final class SimpleResolver<CTX extends QuestContext> implements QuestReso
     public <T> QuestAction<T, CTX> nextAction() {
         skipBlank();
         String element = nextElement();
-        Optional<QuestActionParser> optional = service.getParser(element);
+        Optional<QuestActionParser> optional = service.getRegistry().getParser(element);
         if (optional.isPresent()) {
             return optional.get().resolve(this);
         } else {

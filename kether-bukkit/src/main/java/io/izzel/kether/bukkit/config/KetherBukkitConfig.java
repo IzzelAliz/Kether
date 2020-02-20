@@ -35,7 +35,7 @@ public class KetherBukkitConfig {
         } else {
             identifierProvider = PlayerIdentifierProvider.uuid();
         }
-        TLocale.sendToConsole("config.identifier_provider", identifierProvider.toString());
+        KetherPlugin.instance().getLogger().info(TLocale.asString("config.identifier_provider", identifierProvider.toString()));
         questFolder = KetherPlugin.instance().getDataFolder().toPath()
             .resolve(configuration.getString("quest.folder", "quests"));
     }
@@ -58,7 +58,7 @@ public class KetherBukkitConfig {
                 return new LocalYamlStorage(service, plugin.getDataFolder().toPath().resolve("data"));
             }
         } finally {
-            TLocale.sendToConsole("config.storage", section.getString("type"));
+            plugin.getLogger().info(TLocale.asString("config.storage", section.getString("type")));
         }
     }
 

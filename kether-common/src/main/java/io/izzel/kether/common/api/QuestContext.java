@@ -57,4 +57,9 @@ public interface QuestContext {
     <T extends AutoCloseable> T addClosable(T closeable);
 
     void terminate();
+
+    /**
+     * @return true if no changes
+     */
+    boolean compareChange(QuestContext context);
 }

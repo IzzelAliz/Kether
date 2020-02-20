@@ -54,7 +54,7 @@ public abstract class AbstractSqlStorage extends AbstractStorage {
         String questId = context.getQuest().getId();
         return CompletableFuture.supplyAsync(() -> {
             QuestContext prev = this.map.computeIfAbsent(playerIdentifier, k -> new HashMap<>()).put(questId, context);
-            if (!context.equals(prev)) {
+            if (!context.compareChange(prev)) {
                 return this.yaml.dump(context);
             } else {
                 return null;

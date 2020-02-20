@@ -38,7 +38,7 @@ public class KetherBukkitQuestService implements QuestService<BukkitQuestContext
     void loadAll() throws Exception {
         questMap = QuestLoader.loadFolder(KetherPlugin.instance().getKetherConfig().getQuestFolder(),
             this, KetherPlugin.instance().getLogger());
-        TLocale.sendToConsole("quest-load", questMap.size());
+        KetherPlugin.instance().getLogger().info(TLocale.asString("quest-load", questMap.size()));
     }
 
     @Override

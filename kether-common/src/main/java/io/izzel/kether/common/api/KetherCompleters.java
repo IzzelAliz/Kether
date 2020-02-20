@@ -78,11 +78,11 @@ public final class KetherCompleters {
             } else {
                 String remove = params.remove(0);
                 if (params.isEmpty()) {
-                    return service.getRegisteredActions().stream()
+                    return service.getRegistry().getRegisteredActions().stream()
                         .filter(it -> it.startsWith(remove))
                         .collect(Collectors.toList());
                 } else {
-                    Optional<QuestActionParser> optional = service.getParser(remove);
+                    Optional<QuestActionParser> optional = service.getRegistry().getParser(remove);
                     if (optional.isPresent()) {
                         return optional.get().complete(params);
                     } else {

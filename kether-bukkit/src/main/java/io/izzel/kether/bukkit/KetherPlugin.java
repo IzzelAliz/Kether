@@ -1,6 +1,7 @@
 package io.izzel.kether.bukkit;
 
 import io.izzel.kether.bukkit.config.KetherBukkitConfig;
+import io.izzel.kether.common.actions.KetherTypes;
 import io.izzel.kether.common.api.QuestService;
 import io.izzel.kether.common.api.QuestStorage;
 import io.izzel.taboolib.loader.Plugin;
@@ -9,6 +10,7 @@ import io.izzel.taboolib.module.locale.TLocale;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 @Dependency(maven = "com.zaxxer:HikariCP:3.1.0")
@@ -28,6 +30,14 @@ public class KetherPlugin extends Plugin {
     }
 
     @Override
+    public void onStarting() {
+        KetherTypes.registerInternals(
+            KetherBukkitQuestService.instance().getRegistry(),
+            KetherBukkitQuestService.instance()
+        );
+    }
+
+    @Override
     public void onActivated() {
         saveDefaultConfig();
         ketherConfig = new KetherBukkitConfig(getConfig());
@@ -35,25 +45,27 @@ public class KetherPlugin extends Plugin {
         try {
             storage.init();
         } catch (Exception e) {
-            TLocale.sendToConsole("storage-init", e);
+            getLogger().info(TLocale.asString("storage-init", e));
         }
         try {
             KetherBukkitQuestService.instance().loadAll();
         } catch (Exception e) {
-            TLocale.sendToConsole("load-error.unknown-error", e);
+            getLogger().info(TLocale.asString("load-error.unknown-error", e));
         }
     }
 
     @Override
     public void onStopping() {
         try {
-            TLocale.sendToConsole("waiting-save");
+            getLogger().info(TLocale.asString("waiting-save"));
             KetherBukkitQuestService service = KetherBukkitQuestService.instance();
             for (BukkitQuestContext context : service.getRunningQuests().values()) {
                 service.terminateQuest(context);
             }
             storage.close();
-            KetherBukkitQuestService.instance().getAsyncExecutor().awaitTermination(30 , TimeUnit.SECONDS);
+            ScheduledExecutorService asyncExecutor = KetherBukkitQuestService.instance().getAsyncExecutor();
+            asyncExecutor.shutdown();
+            asyncExecutor.awaitTermination(30, TimeUnit.SECONDS);
         } catch (Exception e) {
             e.printStackTrace();
         }

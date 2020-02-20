@@ -83,7 +83,7 @@ public class LocalYamlStorage extends AbstractStorage {
     @Override
     public CompletableFuture<Void> updateContext(String playerIdentifier, QuestContext context) {
         QuestContext prev = map.computeIfAbsent(playerIdentifier, k -> new HashMap<>()).put(context.getQuest().getId(), context);
-        if (!context.equals(prev)) {
+        if (!context.compareChange(prev)) {
             dirtyContexts.add(context);
         }
         return CompletableFuture.completedFuture(null);
