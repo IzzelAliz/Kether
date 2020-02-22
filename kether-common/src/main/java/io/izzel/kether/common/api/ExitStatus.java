@@ -1,6 +1,10 @@
 package io.izzel.kether.common.api;
 
+import java.util.Objects;
+
 public class ExitStatus {
+
+    private static final ExitStatus PAUSED = new ExitStatus(true, false, 0);
 
     private final boolean running;
     private final boolean waiting;
@@ -24,12 +28,36 @@ public class ExitStatus {
         return startTime;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ExitStatus that = (ExitStatus) o;
+        return isRunning() == that.isRunning() &&
+            isWaiting() == that.isWaiting() &&
+            getStartTime() == that.getStartTime();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(isRunning(), isWaiting(), getStartTime());
+    }
+
+    @Override
+    public String toString() {
+        return "ExitStatus{" +
+            "running=" + running +
+            ", waiting=" + waiting +
+            ", startTime=" + startTime +
+            '}';
+    }
+
     public static ExitStatus success() {
         return new ExitStatus(false, false, 0);
     }
 
     public static ExitStatus paused() {
-        return new ExitStatus(true, false, 0);
+        return PAUSED;
     }
 
     public static ExitStatus cooldown(long timeout) {

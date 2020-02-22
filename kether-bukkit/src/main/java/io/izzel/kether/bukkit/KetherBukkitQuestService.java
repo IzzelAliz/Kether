@@ -65,9 +65,6 @@ public class KetherBukkitQuestService implements QuestService<BukkitQuestContext
         if (!context.getExitStatus().isPresent()) {
             context.setExitStatus(ExitStatus.paused());
         }
-        context.terminate();
-        runningQuests.remove(context.getPlayerIdentifier(), context);
-        getStorage().updateContext(context.getPlayerIdentifier(), context);
     }
 
     @Override

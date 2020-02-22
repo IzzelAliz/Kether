@@ -7,7 +7,7 @@ import io.izzel.kether.common.api.QuestContext;
 
 import java.util.concurrent.CompletableFuture;
 
-final class DataAction<CTX extends QuestContext> implements QuestAction<Void, CTX> {
+public final class DataAction<CTX extends QuestContext> implements QuestAction<Void, CTX> {
 
     private final String key;
 
@@ -24,6 +24,17 @@ final class DataAction<CTX extends QuestContext> implements QuestAction<Void, CT
     public CompletableFuture<Void> process(CTX context) {
         context.setDataKey(key);
         return CompletableFuture.completedFuture(null);
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    @Override
+    public String toString() {
+        return "DataAction{" +
+            "key='" + key + '\'' +
+            '}';
     }
 
     public static QuestActionParser parser() {

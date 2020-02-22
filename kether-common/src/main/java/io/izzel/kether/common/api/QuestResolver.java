@@ -1,10 +1,12 @@
 package io.izzel.kether.common.api;
 
+import com.google.common.collect.ImmutableList;
 import io.izzel.kether.common.SimpleResolver;
 import io.izzel.kether.common.util.Coerce;
 import io.izzel.kether.common.util.LocalizedException;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Locale;
 
 public interface QuestResolver<CTX extends QuestContext> {
@@ -74,6 +76,26 @@ public interface QuestResolver<CTX extends QuestContext> {
         } catch (Exception e) {
             throw LocalizedException.of("not-duration", s);
         }
+    }
+
+    default List<QuestAction<?, CTX>> nextList() {
+        String element = this.nextElement();
+        if (!ImmutableList.of("[", "begin").contains(element)) {
+            throw LocalizedException.of("not-match", "[ / begin", element);
+        }
+        ImmutableList.Builder<QuestAction<?, CTX>> builder = ImmutableList.builder();
+        while (this.hasNext()) {
+            this.mark();
+            String end = this.nextElement();
+            if ((element.equals("[") && end.equals("]")) ||
+                (element.equals("begin") && end.equals("end"))) {
+                break;
+            } else {
+                this.reset();
+                builder.add(this.nextAction());
+            }
+        }
+        return builder.build();
     }
 
     static <C extends QuestContext> QuestResolver<C> of(QuestService<C> service, String text) {

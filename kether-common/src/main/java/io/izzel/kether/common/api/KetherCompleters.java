@@ -2,6 +2,8 @@ package io.izzel.kether.common.api;
 
 import com.google.common.collect.ImmutableList;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -11,6 +13,23 @@ public final class KetherCompleters {
 
     private KetherCompleters() {
         throw new UnsupportedOperationException();
+    }
+
+    public static Function<List<String>, List<String>> some(Function<List<String>, List<String>> function) {
+        return params -> {
+            List<String> ret = new ArrayList<>(), last = new LinkedList<>(params);
+            try {
+                while (!params.isEmpty()) {
+                    ret = function.apply(params);
+                    last = new LinkedList<>(params);
+                }
+                return ret;
+            } catch (Exception e) {
+                params.clear();
+                params.addAll(last);
+                return ret;
+            }
+        };
     }
 
     @SafeVarargs

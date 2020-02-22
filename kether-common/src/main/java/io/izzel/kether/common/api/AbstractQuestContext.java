@@ -23,6 +23,7 @@ public abstract class AbstractQuestContext implements QuestContext {
     protected Map<String, Object> tempData;
     protected Map<String, Object> persistentData;
     private ExitStatus exitStatus;
+    private CompletableFuture<Void> completeFuture;
 
     private boolean doJump;
     private String jumpBlock;
@@ -53,6 +54,7 @@ public abstract class AbstractQuestContext implements QuestContext {
     @Override
     public void terminate() {
         for (AbstractQuestContext child : getChildren()) {
+            child.exitStatus = this.exitStatus;
             child.terminate();
         }
         while (!closeables.isEmpty()) {
@@ -62,15 +64,16 @@ public abstract class AbstractQuestContext implements QuestContext {
                 e.printStackTrace();
             }
         }
-        if (parent != null) {
-            parent.getTempData().remove(childKey);
-            if (exitStatus != null) {
-                parent.setExitStatus(exitStatus);
-            }
+        if (exitStatus != null && !exitStatus.equals(ExitStatus.paused())) {
+            this.tempData.clear();
+        }
+        if (completeFuture != null) {
+            completeFuture.complete(null);
         }
     }
 
     protected void nextAction() {
+        this.tempData.clear();
         if (this.doJump) {
             setRunningBlock(jumpBlock);
             setIndex(jumpIndex);
@@ -136,7 +139,15 @@ public abstract class AbstractQuestContext implements QuestContext {
 
     @Override
     public void setExitStatus(ExitStatus exitStatus) {
-        this.exitStatus = exitStatus;
+        if (this.exitStatus == null) {
+            this.exitStatus = exitStatus;
+            AbstractQuestContext root = this;
+            while (root.parent != null) root = root.parent;
+            if (root.exitStatus == null) {
+                root.exitStatus = this.exitStatus;
+                root.terminate();
+            }
+        }
     }
 
     @Override
@@ -152,17 +163,17 @@ public abstract class AbstractQuestContext implements QuestContext {
 
     @Override
     public CompletableFuture<Void> runActions() {
-        CompletableFuture<Void> future = new CompletableFuture<>();
-        process(future);
-        return future;
+        if (completeFuture == null) {
+            completeFuture = new CompletableFuture<>();
+            process();
+            return completeFuture;
+        } else {
+            throw new IllegalStateException("rerun context");
+        }
     }
 
-    private void process(CompletableFuture<Void> future) {
-        while (true) {
-            if (exitStatus != null) {
-                this.terminate();
-                return;
-            }
+    private void process() {
+        while (exitStatus == null) {
             Optional<? extends QuestAction<?, QuestContext>> optional = quest.getBlock(getRunningBlock()).map(block -> block.getActions().get(getIndex()));
             if (optional.isPresent()) {
                 QuestAction<?, QuestContext> action = optional.get();
@@ -170,7 +181,7 @@ public abstract class AbstractQuestContext implements QuestContext {
                     CompletableFuture<?> ret = runAction(action.getDataPrefix(), action);
                     ret.thenRunAsync(() -> {
                         nextAction();
-                        process(future);
+                        process();
                     }, getExecutor());
                     return;
                 } else {
@@ -178,11 +189,10 @@ public abstract class AbstractQuestContext implements QuestContext {
                     nextAction();
                 }
             } else {
-                if (exitStatus == null && parent == null) {
-                    exitStatus = ExitStatus.success();
+                if (exitStatus == null) {
+                    this.exitStatus = ExitStatus.success();
                 }
                 this.terminate();
-                future.complete(null);
                 return;
             }
         }

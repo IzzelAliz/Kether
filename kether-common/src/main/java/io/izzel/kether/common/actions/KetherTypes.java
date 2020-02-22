@@ -10,6 +10,7 @@ public class KetherTypes {
 
     public static <C extends QuestContext> void registerInternals(QuestRegistry registry, QuestService<C> service) {
         registry.registerAction("await", AwaitAction.parser(service));
+        registry.registerAction("await_all", AwaitAllAction.parser(service));
         registry.registerAction("call", CallAction.parser());
         registry.registerAction("data", DataAction.parser());
         registry.registerAction("if", IfAction.parser(service));

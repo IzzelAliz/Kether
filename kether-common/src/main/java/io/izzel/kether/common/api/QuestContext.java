@@ -7,6 +7,8 @@ import java.util.concurrent.Executor;
 
 public interface QuestContext {
 
+    String BASE_DATA_KEY = "default";
+
     Quest getQuest();
 
     String getPlayerIdentifier();
