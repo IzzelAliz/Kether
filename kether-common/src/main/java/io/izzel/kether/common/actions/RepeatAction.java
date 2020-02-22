@@ -25,6 +25,11 @@ final class RepeatAction<CTX extends QuestContext> implements QuestAction<Void, 
     }
 
     @Override
+    public boolean isPersist() {
+        return true;
+    }
+
+    @Override
     public CompletableFuture<Void> process(CTX context) {
         int cur = Coerce.toInteger(context.getTempData().getOrDefault("time", 0));
         if (isAsync()) {

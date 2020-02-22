@@ -6,6 +6,10 @@ public interface QuestAction<T, CTX extends QuestContext> {
 
     boolean isAsync();
 
+    default boolean isPersist() {
+        return false;
+    }
+
     CompletableFuture<T> process(CTX context);
 
     default String getDataPrefix() {

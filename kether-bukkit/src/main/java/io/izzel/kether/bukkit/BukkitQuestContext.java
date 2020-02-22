@@ -22,12 +22,12 @@ public class BukkitQuestContext extends PersistentQuestContext {
 
     @Override
     protected Executor createExecutor() {
-        return new BukkitSchedulerExecutor();
+        return BukkitSchedulerExecutor.INSTANCE;
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public <C extends QuestContext> C createChild(String key) {
-        return (C) new BukkitQuestContext(getService(), this, getQuest(), getPlayerIdentifier(), getRunningBlock(), getIndex(), getDataKey(), null, getPersistentData(), key);
+        return (C) new BukkitQuestContext(getService(), this, getQuest(), getPlayerIdentifier(), getRunningBlock(), getIndex(), QuestContext.BASE_DATA_KEY, null, getPersistentData(), key);
     }
 }

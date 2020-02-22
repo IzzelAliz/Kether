@@ -6,6 +6,8 @@ import java.util.concurrent.Executor;
 
 public class BukkitSchedulerExecutor implements Executor {
 
+    public static final BukkitSchedulerExecutor INSTANCE = new BukkitSchedulerExecutor();
+
     @Override
     public void execute(Runnable command) {
         if (Bukkit.isPrimaryThread()) {
