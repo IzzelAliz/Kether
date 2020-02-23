@@ -20,6 +20,7 @@ public class KetherBukkitConfig {
 
     private PlayerIdentifierProvider identifierProvider;
     private Path questFolder;
+    private long defaultMessageTimeout;
 
     public KetherBukkitConfig(FileConfiguration configuration) {
         this.configuration = configuration;
@@ -38,6 +39,7 @@ public class KetherBukkitConfig {
         KetherPlugin.instance().getLogger().info(TLocale.asString("config.identifier_provider", identifierProvider.toString()));
         questFolder = KetherPlugin.instance().getDataFolder().toPath()
             .resolve(configuration.getString("quest.folder", "quests"));
+        defaultMessageTimeout = configuration.getLong("quest.default_message_timeout", 0L);
     }
 
     public QuestStorage setupStorage(Plugin plugin, QuestService<?> service) {
@@ -68,5 +70,9 @@ public class KetherBukkitConfig {
 
     public Path getQuestFolder() {
         return questFolder;
+    }
+
+    public long getDefaultMessageTimeout() {
+        return defaultMessageTimeout;
     }
 }

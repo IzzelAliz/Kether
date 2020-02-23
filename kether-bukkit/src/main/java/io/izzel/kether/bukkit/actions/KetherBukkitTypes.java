@@ -8,5 +8,7 @@ public class KetherBukkitTypes {
     public static void registerTypes(QuestService<?> service) {
         QuestRegistry registry = service.getRegistry();
         registry.registerAction("timeout", TimeoutAction.parser());
+        registry.registerAction("command", CommandAction.parser());
+        registry.registerAction("message", MessageAction.parser());
     }
 }

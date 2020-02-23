@@ -6,3 +6,4 @@ storage:
   # jdbcUrl: 'jdbc:mysql://root:password@localhost:3306'
 quest:
   folder: 'quests'
+  default_message_timeout: 60
