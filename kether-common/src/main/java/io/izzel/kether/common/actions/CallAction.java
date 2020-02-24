@@ -28,6 +28,11 @@ final class CallAction<CTX extends QuestContext> implements QuestAction<Void, CT
     }
 
     @Override
+    public String getDataPrefix() {
+        return "call_" + block;
+    }
+
+    @Override
     public String toString() {
         return "CallAction{" +
             "block='" + block + '\'' +

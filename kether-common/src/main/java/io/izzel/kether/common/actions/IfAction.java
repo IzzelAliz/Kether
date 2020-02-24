@@ -27,6 +27,11 @@ final class IfAction<U, CTX extends QuestContext> implements QuestAction<U, CTX>
     }
 
     @Override
+    public String getDataPrefix() {
+        return "if";
+    }
+
+    @Override
     public CompletableFuture<U> process(QuestContext context) {
         if (isAsync()) {
             CompletableFuture<U> future = new CompletableFuture<>();

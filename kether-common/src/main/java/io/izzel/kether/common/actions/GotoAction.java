@@ -27,6 +27,11 @@ final class GotoAction<CTX extends QuestContext> implements QuestAction<Void, CT
     }
 
     @Override
+    public String getDataPrefix() {
+        return "goto";
+    }
+
+    @Override
     public String toString() {
         return "GotoAction{" +
             "block='" + block + '\'' +

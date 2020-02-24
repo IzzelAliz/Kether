@@ -37,6 +37,11 @@ final class TimeoutAction implements QuestAction<Void, BukkitQuestContext> {
     }
 
     @Override
+    public String getDataPrefix() {
+        return "timeout";
+    }
+
+    @Override
     public String toString() {
         return "TimeoutAction{" +
             "ticks=" + ticks +

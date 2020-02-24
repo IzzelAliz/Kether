@@ -34,6 +34,11 @@ final class ExitAction<CTX extends QuestContext> implements QuestAction<Void, CT
     }
 
     @Override
+    public String getDataPrefix() {
+        return "exit";
+    }
+
+    @Override
     public String toString() {
         return "ExitAction{" +
             "running=" + running +

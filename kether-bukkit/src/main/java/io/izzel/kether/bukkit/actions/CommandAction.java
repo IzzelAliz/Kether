@@ -53,6 +53,20 @@ final class CommandAction implements QuestAction<Boolean, BukkitQuestContext> {
         }
     }
 
+    @Override
+    public String getDataPrefix() {
+        return "command";
+    }
+
+    @Override
+    public String toString() {
+        return "CommandAction{" +
+            "command='" + command + '\'' +
+            ", console=" + console +
+            ", op=" + op +
+            '}';
+    }
+
     public static QuestActionParser parser() {
         return QuestActionParser.<Boolean, BukkitQuestContext>of(
             resolver -> {

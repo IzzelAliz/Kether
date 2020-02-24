@@ -9,11 +9,11 @@ import io.izzel.kether.common.api.QuestService;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-final class AwaitAllAction<CTX extends QuestContext> implements QuestAction<Void, CTX> {
+final class AwaitAnyAction<CTX extends QuestContext> implements QuestAction<Object, CTX> {
 
     private final List<QuestAction<?, CTX>> actions;
 
-    public AwaitAllAction(List<QuestAction<?, CTX>> actions) {
+    public AwaitAnyAction(List<QuestAction<?, CTX>> actions) {
         this.actions = actions;
     }
 
@@ -23,31 +23,31 @@ final class AwaitAllAction<CTX extends QuestContext> implements QuestAction<Void
     }
 
     @Override
-    public CompletableFuture<Void> process(CTX context) {
+    public CompletableFuture<Object> process(CTX context) {
         CompletableFuture<?>[] futures = new CompletableFuture[actions.size()];
         for (int i = 0; i < actions.size(); i++) {
             QuestAction<?, CTX> action = actions.get(i);
             CompletableFuture<?> future = context.runAction(String.valueOf(i), action);
             futures[i] = future;
         }
-        return CompletableFuture.allOf(futures);
+        return CompletableFuture.anyOf(futures);
     }
 
     @Override
     public String getDataPrefix() {
-        return "await_all";
+        return "await_any";
     }
 
     @Override
     public String toString() {
-        return "AwaitAllAction{" +
+        return "AwaitAnyAction{" +
             "actions=" + actions +
             '}';
     }
 
     public static QuestActionParser parser(QuestService<?> service) {
         return QuestActionParser.of(
-            resolver -> new AwaitAllAction<>(resolver.nextList()),
+            resolver -> new AwaitAnyAction<>(resolver.nextList()),
             KetherCompleters.seq(
                 KetherCompleters.firstParsing(
                     KetherCompleters.constant("["),

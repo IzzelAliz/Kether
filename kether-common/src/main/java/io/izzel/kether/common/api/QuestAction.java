@@ -12,9 +12,7 @@ public interface QuestAction<T, CTX extends QuestContext> {
 
     CompletableFuture<T> process(CTX context);
 
-    default String getDataPrefix() {
-        return this.getClass().getSimpleName().toLowerCase();
-    }
+    String getDataPrefix();
 
     static <T, C extends QuestContext> QuestAction<T, C> noop() {
         return new QuestAction<T, C>() {
@@ -26,6 +24,11 @@ public interface QuestAction<T, CTX extends QuestContext> {
             @Override
             public CompletableFuture<T> process(C context) {
                 return CompletableFuture.completedFuture(null);
+            }
+
+            @Override
+            public String getDataPrefix() {
+                return "noop";
             }
 
             @Override

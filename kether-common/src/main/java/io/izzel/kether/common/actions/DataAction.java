@@ -26,6 +26,11 @@ public final class DataAction<CTX extends QuestContext> implements QuestAction<V
         return CompletableFuture.completedFuture(null);
     }
 
+    @Override
+    public String getDataPrefix() {
+        return "data";
+    }
+
     public String getKey() {
         return key;
     }

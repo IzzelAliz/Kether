@@ -54,6 +54,11 @@ final class MessageAction implements QuestAction<Void, BukkitQuestContext> {
     }
 
     @Override
+    public String getDataPrefix() {
+        return "message";
+    }
+
+    @Override
     public String toString() {
         return "MessageAction{" +
             "message='" + message + '\'' +

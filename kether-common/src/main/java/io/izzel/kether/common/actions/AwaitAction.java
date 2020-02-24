@@ -29,6 +29,11 @@ final class AwaitAction<T, CTX extends QuestContext> implements QuestAction<T, C
     }
 
     @Override
+    public String getDataPrefix() {
+        return "await";
+    }
+
+    @Override
     public String toString() {
         return "AwaitAction{" +
             "action=" + action +

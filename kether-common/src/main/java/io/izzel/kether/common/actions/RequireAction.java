@@ -35,6 +35,11 @@ final class RequireAction<CTX extends QuestContext> implements QuestAction<Void,
         return future;
     }
 
+    @Override
+    public String getDataPrefix() {
+        return "require";
+    }
+
     private void process(CTX context, CompletableFuture<Void> future) {
         context.runAction("trigger", trigger).thenRunAsync(() ->
             context.runAction("condition", condition).thenAcceptAsync(t -> {

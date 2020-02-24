@@ -44,6 +44,11 @@ final class RepeatAction<CTX extends QuestContext> implements QuestAction<Void, 
         }
     }
 
+    @Override
+    public String getDataPrefix() {
+        return "repeat";
+    }
+
     private void process(CTX context, CompletableFuture<Void> future, int cur) {
         if (cur < time) {
             context.runAction("repeat", action).thenRunAsync(() -> {

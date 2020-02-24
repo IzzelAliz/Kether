@@ -38,6 +38,11 @@ final class WhileAction<CTX extends QuestContext> implements QuestAction<Void, C
         }
     }
 
+    @Override
+    public String getDataPrefix() {
+        return "while";
+    }
+
     private void process(CTX context, CompletableFuture<Void> future) {
         context.runAction("condition", condition).thenAcceptAsync(t -> {
             if (Coerce.toBoolean(t)) {

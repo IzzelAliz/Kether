@@ -15,6 +15,19 @@ public final class KetherCompleters {
         throw new UnsupportedOperationException();
     }
 
+    public static <E extends Enum<E>> Function<List<String>, List<String>> enumValue(Class<E> cl) {
+        return params -> {
+            String remove = params.remove(0);
+            List<String> list = new ArrayList<>();
+            for (E constant : cl.getEnumConstants()) {
+                if (constant.name().startsWith(remove)) {
+                    list.add(constant.name());
+                }
+            }
+            return list;
+        };
+    }
+
     public static Function<List<String>, List<String>> some(Function<List<String>, List<String>> function) {
         return params -> {
             List<String> ret = new ArrayList<>(), last = new LinkedList<>(params);
