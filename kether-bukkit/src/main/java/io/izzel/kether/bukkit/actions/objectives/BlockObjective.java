@@ -6,7 +6,6 @@ import io.izzel.kether.common.api.KetherCompleters;
 import io.izzel.kether.common.api.QuestAction;
 import io.izzel.kether.common.api.QuestActionParser;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -25,9 +24,15 @@ public abstract class BlockObjective implements QuestAction<Void, BukkitQuestCon
     }
 
     public static QuestActionParser blockPlace() {
-        Block block;
         return QuestActionParser.<Void, BukkitQuestContext>of(
             resolver -> new BlockBreak(Material.matchMaterial(resolver.nextElement())),
+            KetherCompleters.enumValue(Material.class)
+        );
+    }
+
+    public static QuestActionParser blockInteract(Action action) {
+        return QuestActionParser.<Void, BukkitQuestContext>of(
+            resolver -> new BlockInteract(Material.matchMaterial(resolver.nextElement()), action),
             KetherCompleters.enumValue(Material.class)
         );
     }
@@ -60,7 +65,7 @@ public abstract class BlockObjective implements QuestAction<Void, BukkitQuestCon
                 PlayerInteractEvent.class,
                 event -> event.getPlayer().equals(player)
                     && event.getClickedBlock().getType().equals(material)
-                    && action == null || event.getAction() == action,
+                    && (action == null || event.getAction() == action),
                 event -> future.complete(null)
             ));
             return future;
@@ -69,6 +74,14 @@ public abstract class BlockObjective implements QuestAction<Void, BukkitQuestCon
         @Override
         public String getDataPrefix() {
             return "block_interact";
+        }
+
+        @Override
+        public String toString() {
+            return "BlockInteract{" +
+                "material=" + material +
+                ", action=" + action +
+                '}';
         }
     }
 
