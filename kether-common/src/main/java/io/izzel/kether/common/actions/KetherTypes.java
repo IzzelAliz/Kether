@@ -13,7 +13,7 @@ public class KetherTypes {
         registry.registerAction("await_all", AwaitAllAction.parser(service));
         registry.registerAction("await_any", AwaitAnyAction.parser(service));
         registry.registerAction("call", CallAction.parser());
-        registry.registerAction("data", DataAction.parser());
+        registry.registerAction("#", DataAction.parser());
         registry.registerAction("if", IfAction.parser(service));
         registry.registerAction("goto", GotoAction.parser());
         registry.registerAction("while", WhileAction.parser(service));
@@ -23,6 +23,7 @@ public class KetherTypes {
         registry.registerAction("all", AllAction.parser(service));
         registry.registerAction("any", AnyAction.parser(service));
         registry.registerAction("not", NotAction.parser(service));
+        registry.registerAction("set", SetAction.parser());
 
         registry.registerPersistentDataType("exit_status", ExitStatus.class, KetherSerializer.gson(ExitStatus.class));
     }
