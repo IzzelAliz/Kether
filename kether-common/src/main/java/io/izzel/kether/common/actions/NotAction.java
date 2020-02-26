@@ -5,20 +5,21 @@ import io.izzel.kether.common.api.QuestAction;
 import io.izzel.kether.common.api.QuestActionParser;
 import io.izzel.kether.common.api.QuestContext;
 import io.izzel.kether.common.api.QuestService;
+import io.izzel.kether.common.util.Coerce;
 
 import java.util.concurrent.CompletableFuture;
 
-final class AwaitAction<T, CTX extends QuestContext> implements QuestAction<T, CTX> {
+final class NotAction<CTX extends QuestContext> implements QuestAction<Boolean, CTX> {
 
-    private final QuestAction<T, CTX> action;
+    private final QuestAction<?, CTX> action;
 
-    public AwaitAction(QuestAction<T, CTX> action) {
+    public NotAction(QuestAction<?, CTX> action) {
         this.action = action;
     }
 
     @Override
     public boolean isAsync() {
-        return true;
+        return action.isAsync();
     }
 
     @Override
@@ -27,27 +28,28 @@ final class AwaitAction<T, CTX extends QuestContext> implements QuestAction<T, C
     }
 
     @Override
-    public CompletableFuture<T> process(CTX context) {
-        CompletableFuture<T> future = new CompletableFuture<>();
-        context.runAction("await", action).thenAccept(future::complete);
-        return future;
+    public CompletableFuture<Boolean> process(CTX context) {
+        return context.runAction("not", action).thenApplyAsync(
+            t -> !Coerce.toBoolean(t),
+            context.getExecutor()
+        );
     }
 
     @Override
     public String getDataPrefix() {
-        return "await";
+        return "not";
     }
 
     @Override
     public String toString() {
-        return "AwaitAction{" +
+        return "NotAction{" +
             "action=" + action +
             '}';
     }
 
     public static QuestActionParser parser(QuestService<?> service) {
         return QuestActionParser.of(
-            resolver -> new AwaitAction<>(resolver.nextAction()),
+            resolver -> new NotAction<>(resolver.nextAction()),
             KetherCompleters.action(service)
         );
     }

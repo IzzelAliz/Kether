@@ -147,6 +147,8 @@ public abstract class AbstractQuestContext implements QuestContext {
                 root.exitStatus = this.exitStatus;
                 root.terminate();
             }
+        } else if (exitStatus == null) {
+            this.exitStatus = null;
         }
     }
 

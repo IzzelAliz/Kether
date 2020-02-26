@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -83,9 +84,10 @@ public class QuestLoader {
     ) throws IOException {
         Map<String, Quest> questMap = new HashMap<>();
         if (Files.notExists(folder)) Files.createDirectories(folder);
-        Files.walk(folder)
-            .filter(it -> !Files.isDirectory(it))
-            .forEach(path -> {
+        Iterator<Path> iterator = Files.walk(folder).iterator();
+        while (iterator.hasNext()) {
+            Path path = iterator.next();
+            if (!Files.isDirectory(path)) {
                 try {
                     String name = folder.relativize(path).toString()
                         .replace(File.separatorChar, '.');
@@ -94,7 +96,8 @@ public class QuestLoader {
                 } catch (Exception e) {
                     logger.severe(service.getLocalizedText("load-error.fail", path));
                 }
-            });
+            }
+        }
         return questMap;
     }
 }

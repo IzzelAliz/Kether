@@ -21,6 +21,11 @@ final class CallAction<CTX extends QuestContext> implements QuestAction<Void, CT
     }
 
     @Override
+    public boolean isPersist() {
+        return true;
+    }
+
+    @Override
     public CompletableFuture<Void> process(CTX context) {
         QuestContext child = context.createChild("call");
         child.setJump(block, 0);

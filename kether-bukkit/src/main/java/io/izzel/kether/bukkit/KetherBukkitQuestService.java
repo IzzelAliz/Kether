@@ -52,6 +52,11 @@ public class KetherBukkitQuestService implements QuestService<BukkitQuestContext
     }
 
     @Override
+    public Map<String, Quest> getQuests() {
+        return Collections.unmodifiableMap(questMap);
+    }
+
+    @Override
     public void startQuest(BukkitQuestContext context) {
         runningQuests.put(context.getPlayerIdentifier(), context);
         context.runActions().thenRunAsync(() -> {

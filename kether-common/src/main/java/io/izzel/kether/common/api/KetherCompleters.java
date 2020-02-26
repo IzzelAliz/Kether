@@ -15,6 +15,22 @@ public final class KetherCompleters {
         throw new UnsupportedOperationException();
     }
 
+    public static Function<List<String>, List<String>> list(QuestService<?> service) {
+        return seq(
+            firstParsing(
+                constant("["),
+                constant("begin")
+            ),
+            some(
+                action(service)
+            ),
+            firstParsing(
+                constant("]"),
+                constant("end")
+            )
+        );
+    }
+
     public static <E extends Enum<E>> Function<List<String>, List<String>> enumValue(Class<E> cl) {
         return params -> {
             String remove = params.remove(0);

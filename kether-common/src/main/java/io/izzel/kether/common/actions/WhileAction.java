@@ -25,6 +25,11 @@ final class WhileAction<CTX extends QuestContext> implements QuestAction<Void, C
     }
 
     @Override
+    public boolean isPersist() {
+        return condition.isPersist() || action.isPersist();
+    }
+
+    @Override
     public CompletableFuture<Void> process(CTX context) {
         if (isAsync()) {
             CompletableFuture<Void> future = new CompletableFuture<>();

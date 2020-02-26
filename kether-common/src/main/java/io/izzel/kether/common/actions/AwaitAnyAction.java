@@ -23,6 +23,11 @@ final class AwaitAnyAction<CTX extends QuestContext> implements QuestAction<Obje
     }
 
     @Override
+    public boolean isPersist() {
+        return actions.stream().anyMatch(QuestAction::isPersist);
+    }
+
+    @Override
     public CompletableFuture<Object> process(CTX context) {
         CompletableFuture<?>[] futures = new CompletableFuture[actions.size()];
         for (int i = 0; i < actions.size(); i++) {

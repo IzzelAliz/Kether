@@ -23,7 +23,12 @@ final class IfAction<U, CTX extends QuestContext> implements QuestAction<U, CTX>
 
     @Override
     public boolean isAsync() {
-        return condition.isAsync() || trueAction.isAsync();
+        return condition.isAsync() || trueAction.isAsync() || falseAction.isAsync();
+    }
+
+    @Override
+    public boolean isPersist() {
+        return condition.isPersist() || trueAction.isPersist() || falseAction.isPersist();
     }
 
     @Override

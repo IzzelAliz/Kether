@@ -5,21 +5,22 @@ import io.izzel.kether.common.api.QuestAction;
 import io.izzel.kether.common.api.QuestActionParser;
 import io.izzel.kether.common.api.QuestContext;
 import io.izzel.kether.common.api.QuestService;
+import io.izzel.kether.common.util.Coerce;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-final class AwaitAllAction<CTX extends QuestContext> implements QuestAction<Void, CTX> {
+final class AllAction<CTX extends QuestContext> implements QuestAction<Boolean, CTX> {
 
     private final List<QuestAction<?, CTX>> actions;
 
-    public AwaitAllAction(List<QuestAction<?, CTX>> actions) {
+    public AllAction(List<QuestAction<?, CTX>> actions) {
         this.actions = actions;
     }
 
     @Override
     public boolean isAsync() {
-        return true;
+        return actions.stream().anyMatch(QuestAction::isAsync);
     }
 
     @Override
@@ -28,31 +29,31 @@ final class AwaitAllAction<CTX extends QuestContext> implements QuestAction<Void
     }
 
     @Override
-    public CompletableFuture<Void> process(CTX context) {
-        CompletableFuture<?>[] futures = new CompletableFuture[actions.size()];
+    public CompletableFuture<Boolean> process(CTX context) {
+        CompletableFuture<Boolean> future = CompletableFuture.completedFuture(true);
         for (int i = 0; i < actions.size(); i++) {
             QuestAction<?, CTX> action = actions.get(i);
-            CompletableFuture<?> future = context.runAction(String.valueOf(i), action);
-            futures[i] = future;
+            CompletableFuture<?> f = context.runAction(String.valueOf(i), action);
+            future = future.thenCombine(f, (b, o) -> b && Coerce.toBoolean(o));
         }
-        return CompletableFuture.allOf(futures);
+        return future;
     }
 
     @Override
     public String getDataPrefix() {
-        return "await_all";
+        return "all";
     }
 
     @Override
     public String toString() {
-        return "AwaitAllAction{" +
+        return "AllAction{" +
             "actions=" + actions +
             '}';
     }
 
     public static QuestActionParser parser(QuestService<?> service) {
         return QuestActionParser.of(
-            resolver -> new AwaitAllAction<>(resolver.nextList()),
+            resolver -> new AllAction<>(resolver.nextList()),
             KetherCompleters.list(service)
         );
     }

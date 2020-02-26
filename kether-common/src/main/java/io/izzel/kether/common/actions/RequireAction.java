@@ -29,6 +29,11 @@ final class RequireAction<CTX extends QuestContext> implements QuestAction<Void,
     }
 
     @Override
+    public boolean isPersist() {
+        return trigger.isPersist() || elseAction.isPersist();
+    }
+
+    @Override
     public CompletableFuture<Void> process(CTX context) {
         CompletableFuture<Void> future = new CompletableFuture<>();
         process(context, future);
