@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -33,16 +34,16 @@ public class LocalYamlStorage extends AbstractStorage {
     public LocalYamlStorage(QuestService<?> service, Path baseDir) {
         super(service);
         this.baseDir = baseDir;
+    }
+
+    @Override
+    public void init() throws Exception {
         DumperOptions options = new DumperOptions();
         options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
         options.setAllowUnicode(true);
         KetherRepresenter representer = new KetherRepresenter(service);
         representer.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
         this.yaml = new Yaml(new KetherConstructor(service), representer, options);
-    }
-
-    @Override
-    public void init() throws Exception {
         if (Files.notExists(baseDir)) Files.createDirectories(baseDir);
         this.saveTask = this.service.getAsyncExecutor().scheduleWithFixedDelay(this::saveDirty, 5, 5, TimeUnit.MINUTES);
     }
@@ -63,15 +64,19 @@ public class LocalYamlStorage extends AbstractStorage {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
             this.dirtyContexts = new LinkedList<>();
             this.service.getAsyncExecutor().submit(() -> {
-                for (Map.Entry<QuestContext, String> entry : map.entrySet()) {
-                    QuestContext context = entry.getKey();
-                    String dump = entry.getValue();
-                    Path path = this.baseDir.resolve(context.getPlayerIdentifier()).resolve(context.getQuest().getId() + ".yml");
-                    if (Files.notExists(path)) {
-                        Files.createDirectories(path.getParent());
-                        Files.createFile(path);
+                try {
+                    for (Map.Entry<QuestContext, String> entry : map.entrySet()) {
+                        QuestContext context = entry.getKey();
+                        String dump = entry.getValue();
+                        Path path = this.baseDir.resolve(context.getPlayerIdentifier()).resolve(context.getQuest().getId() + ".yml");
+                        if (Files.notExists(path)) {
+                            Files.createDirectories(path.getParent());
+                            Files.createFile(path);
+                        }
+                        Files.copy(new ByteArrayInputStream(dump.getBytes(StandardCharsets.UTF_8)), path, StandardCopyOption.REPLACE_EXISTING);
                     }
-                    Files.copy(new ByteArrayInputStream(dump.getBytes(StandardCharsets.UTF_8)), path);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
                 future.complete(null);
                 return null;

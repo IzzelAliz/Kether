@@ -36,7 +36,7 @@ public class QuestLoader {
         {
             Matcher matcher = BLOCK_LABEL.matcher(content);
             int end = 0;
-            String labelName = "main";
+            String labelName = QuestContext.BASE_BLOCK;
             while (matcher.find()) {
                 blockContents.put(labelName, content.substring(end, matcher.start()).trim());
                 labelName = matcher.group(1);

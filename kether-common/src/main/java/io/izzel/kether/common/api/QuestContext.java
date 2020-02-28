@@ -7,6 +7,8 @@ import java.util.concurrent.Executor;
 
 public interface QuestContext {
 
+    String BASE_BLOCK = "main";
+
     String BASE_DATA_KEY = "default";
 
     Quest getQuest();
@@ -23,7 +25,7 @@ public interface QuestContext {
 
     void setJump(String block, int index);
 
-    <C extends QuestContext> C createChild(String key);
+    <C extends QuestContext> C createChild(String key, boolean anonymous);
 
     CompletableFuture<Void> runActions();
 

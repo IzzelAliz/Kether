@@ -17,12 +17,13 @@ public abstract class AbstractQuestContext implements QuestContext {
     private final Quest quest;
     private final String playerIdentifier;
     private final QuestExecutor executor;
+    private final boolean anonymous;
     protected String runningBlock;
     protected int index;
     protected String dataKey;
     protected Map<String, Object> tempData;
     protected Map<String, Object> persistentData;
-    private ExitStatus exitStatus;
+    protected ExitStatus exitStatus;
     private CompletableFuture<Void> completeFuture;
 
     private boolean doJump;
@@ -33,7 +34,7 @@ public abstract class AbstractQuestContext implements QuestContext {
     protected Deque<AutoCloseable> closeables = new LinkedBlockingDeque<>();
     protected Deque<AbstractQuestContext> children = new LinkedBlockingDeque<>();
 
-    protected AbstractQuestContext(QuestService<?> service, AbstractQuestContext parent, Quest quest, String playerIdentifier, String runningBlock, int index, String dataKey, Map<String, Object> tempData, Map<String, Object> persistentData, String childKey) {
+    protected AbstractQuestContext(QuestService<?> service, AbstractQuestContext parent, Quest quest, String playerIdentifier, String runningBlock, int index, String dataKey, Map<String, Object> tempData, Map<String, Object> persistentData, String childKey, boolean anonymous) {
         this.service = service;
         this.parent = parent;
         this.quest = quest;
@@ -44,12 +45,13 @@ public abstract class AbstractQuestContext implements QuestContext {
         this.persistentData = persistentData;
         this.childKey = childKey;
         this.dataKey = dataKey;
+        this.anonymous = anonymous;
         this.executor = new QuestExecutor();
     }
 
     protected abstract Executor createExecutor();
 
-    public abstract <C extends QuestContext> C createChild(String key);
+    public abstract <C extends QuestContext> C createChild(String key, boolean anonymous);
 
     @Override
     public void terminate() {
@@ -64,7 +66,7 @@ public abstract class AbstractQuestContext implements QuestContext {
                 e.printStackTrace();
             }
         }
-        if (exitStatus != null && !exitStatus.equals(ExitStatus.paused())) {
+        if (exitStatus != null && !exitStatus.equals(ExitStatus.paused()) && this.tempData != null) {
             this.tempData.clear();
         }
         if (completeFuture != null) {
@@ -108,7 +110,11 @@ public abstract class AbstractQuestContext implements QuestContext {
     }
 
     public void setRunningBlock(String runningBlock) {
-        this.runningBlock = runningBlock;
+        if (anonymous) {
+            parent.setRunningBlock(runningBlock);
+        } else {
+            this.runningBlock = runningBlock;
+        }
     }
 
     @Override
@@ -117,12 +123,20 @@ public abstract class AbstractQuestContext implements QuestContext {
     }
 
     public void setIndex(int index) {
-        this.index = index;
+        if (anonymous) {
+            parent.setIndex(index);
+        } else {
+            this.index = index;
+        }
     }
 
     @Override
     public void setDataKey(String key) {
-        this.dataKey = key;
+        if (anonymous) {
+            parent.setDataKey(key);
+        } else {
+            this.dataKey = key;
+        }
     }
 
     @Override
@@ -132,23 +146,27 @@ public abstract class AbstractQuestContext implements QuestContext {
 
     @Override
     public void setJump(String block, int index) {
-        doJump = true;
-        jumpBlock = block;
-        jumpIndex = index;
+        if (anonymous) {
+            parent.setJump(block, index);
+        } else {
+            doJump = true;
+            jumpBlock = block;
+            jumpIndex = index;
+        }
     }
 
     @Override
     public void setExitStatus(ExitStatus exitStatus) {
-        if (this.exitStatus == null) {
+        if (exitStatus == null) {
+            this.exitStatus = null;
+        } else if (this.exitStatus == null) {
             this.exitStatus = exitStatus;
             AbstractQuestContext root = this;
             while (root.parent != null) root = root.parent;
             if (root.exitStatus == null) {
                 root.exitStatus = this.exitStatus;
-                root.terminate();
             }
-        } else if (exitStatus == null) {
-            this.exitStatus = null;
+            root.terminate();
         }
     }
 
@@ -176,7 +194,8 @@ public abstract class AbstractQuestContext implements QuestContext {
 
     private void process() {
         while (exitStatus == null) {
-            Optional<? extends QuestAction<?, QuestContext>> optional = quest.getBlock(getRunningBlock()).map(block -> block.getActions().get(getIndex()));
+            Optional<? extends QuestAction<?, QuestContext>> optional = quest.getBlock(getRunningBlock())
+                .map(block -> getIndex() < block.getActions().size() ? block.getActions().get(getIndex()) : null);
             if (optional.isPresent()) {
                 QuestAction<?, QuestContext> action = optional.get();
                 if (action.isAsync()) {
@@ -202,7 +221,7 @@ public abstract class AbstractQuestContext implements QuestContext {
 
     @Override
     public <T, C extends QuestContext> CompletableFuture<T> runAction(String key, QuestAction<T, C> action) {
-        C child = this.createChild(key);
+        C child = this.createChild(key, true);
         CompletableFuture<T> future = action.process(child);
         return future.thenApplyAsync(t -> {
             child.terminate();
@@ -254,7 +273,7 @@ public abstract class AbstractQuestContext implements QuestContext {
     @Override
     public boolean compareChange(QuestContext context) {
         if (context == null) {
-            return !modified && tempData.isEmpty() && persistentData.isEmpty();
+            return !modified && exitStatus == null && (tempData == null || tempData.isEmpty()) && persistentData.isEmpty();
         } else {
             return this.equals(context);
         }

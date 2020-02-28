@@ -37,10 +37,15 @@ public class KetherPlugin extends Plugin {
             KetherBukkitQuestService.instance()
         );
         KetherBukkitTypes.registerTypes(KetherBukkitQuestService.instance());
+        getServer().getPluginManager().registerEvents(
+            new KetherListeners(KetherBukkitQuestService.instance()),
+            this
+        );
     }
 
     @Override
     public void onActivated() {
+        long time = System.currentTimeMillis();
         saveDefaultConfig();
         ketherConfig = new KetherBukkitConfig(getConfig());
         storage = ketherConfig.setupStorage(this, KetherBukkitQuestService.instance());
@@ -54,6 +59,8 @@ public class KetherPlugin extends Plugin {
         } catch (Exception e) {
             getLogger().info(TLocale.asString("load-error.unknown-error", e));
         }
+        String format = String.format("%.2f", (double) (System.currentTimeMillis() - time) / 1000d);
+        getLogger().info(TLocale.asString("stop-loading", format));
     }
 
     @Override

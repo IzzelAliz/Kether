@@ -37,6 +37,14 @@ final class SetAction<CTX extends QuestContext> implements QuestAction<Void, CTX
         return "set";
     }
 
+    @Override
+    public String toString() {
+        return "SetAction{" +
+            "key='" + key + '\'' +
+            ", value='" + value + '\'' +
+            '}';
+    }
+
     public static QuestActionParser parser() {
         return QuestActionParser.of(
             resolver -> new SetAction<>(resolver.nextElement(), resolver.nextElement()),

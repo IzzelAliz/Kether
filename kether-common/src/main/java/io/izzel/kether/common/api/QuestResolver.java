@@ -1,7 +1,6 @@
 package io.izzel.kether.common.api;
 
 import com.google.common.collect.ImmutableList;
-import io.izzel.kether.common.SimpleResolver;
 import io.izzel.kether.common.util.Coerce;
 import io.izzel.kether.common.util.LocalizedException;
 

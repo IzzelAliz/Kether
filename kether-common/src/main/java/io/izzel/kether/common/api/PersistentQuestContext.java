@@ -12,15 +12,15 @@ public abstract class PersistentQuestContext extends AbstractQuestContext {
     private boolean doRecover = true;
     private int dataOffset = 0;
 
-    protected PersistentQuestContext(QuestService<?> service, AbstractQuestContext parent, Quest quest, String playerIdentifier, String runningBlock, int index, String dataKey, Map<String, Object> tempData, Map<String, Object> persistentData, String childKey) {
-        super(service, parent, quest, playerIdentifier, runningBlock, index, dataKey, tempData, persistentData, childKey);
+    protected PersistentQuestContext(QuestService<?> service, AbstractQuestContext parent, Quest quest, String playerIdentifier, String runningBlock, int index, String dataKey, Map<String, Object> tempData, Map<String, Object> persistentData, String childKey, boolean anonymous) {
+        super(service, parent, quest, playerIdentifier, runningBlock, index, dataKey, tempData, persistentData, childKey, anonymous);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public CompletableFuture<Void> runActions() {
         if (doRecover) {
-            Object o = this.tempData.get("$");
+            Object o = this.getTempData().get("$");
             if (o instanceof Map) {
                 Map<String, Object> map = ((Map<String, Object>) o);
                 if (!map.isEmpty()) {

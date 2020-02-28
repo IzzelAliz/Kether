@@ -38,7 +38,7 @@ final class KetherConstructor extends SafeConstructor {
                 String type = raw.get("_type").toString();
                 Optional<KetherSerializer<Object>> optional = service.getRegistry().getPersistentDataSerializer(type);
                 if (optional.isPresent()) {
-                    return optional.get().deserialize(typed);
+                    return optional.get().deserialize(typed).orElse(null);
                 }
             }
             return raw;

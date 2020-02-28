@@ -14,6 +14,8 @@ public interface QuestService<CTX extends QuestContext> {
 
     Optional<Quest> getQuest(String id);
 
+    Map<String, Object> getQuestSettings(String id);
+
     Map<String, Quest> getQuests();
 
     void startQuest(CTX context);

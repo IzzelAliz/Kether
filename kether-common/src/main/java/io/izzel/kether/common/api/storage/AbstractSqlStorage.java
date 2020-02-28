@@ -28,16 +28,16 @@ public abstract class AbstractSqlStorage extends AbstractStorage {
     public AbstractSqlStorage(QuestService<?> service, Supplier<DataSource> dataSourceSupplier) {
         super(service);
         this.dataSourceSupplier = dataSourceSupplier;
+    }
+
+    @Override
+    public void init() throws Exception {
         DumperOptions options = new DumperOptions();
         options.setDefaultFlowStyle(DumperOptions.FlowStyle.FLOW);
         options.setAllowUnicode(true);
         KetherRepresenter representer = new KetherRepresenter(service);
         representer.setDefaultFlowStyle(DumperOptions.FlowStyle.FLOW);
         this.yaml = new Yaml(new KetherConstructor(service), representer, options);
-    }
-
-    @Override
-    public void init() throws Exception {
         this.dataSource = dataSourceSupplier.get();
     }
 

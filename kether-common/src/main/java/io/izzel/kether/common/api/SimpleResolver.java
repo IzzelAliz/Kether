@@ -1,6 +1,5 @@
-package io.izzel.kether.common;
+package io.izzel.kether.common.api;
 
-import io.izzel.kether.common.api.*;
 import io.izzel.kether.common.util.LocalizedException;
 
 import java.util.Optional;

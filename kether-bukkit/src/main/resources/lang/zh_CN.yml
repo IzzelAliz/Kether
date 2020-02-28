@@ -16,3 +16,4 @@ config:
 storage-init: '数据存储初始化失败：{0}'
 quest-load: '加载了 {0} 个任务'
 waiting-save: '等待所有数据保存'
+stop-loading: 'Kether 加载完成，用时 {0} s'

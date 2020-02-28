@@ -1,5 +1,6 @@
 package io.izzel.kether.bukkit.actions;
 
+import io.izzel.kether.bukkit.BukkitQuestContext;
 import io.izzel.kether.bukkit.actions.objectives.BlockObjective;
 import io.izzel.kether.common.api.QuestRegistry;
 import io.izzel.kether.common.api.QuestService;
@@ -18,5 +19,7 @@ public class KetherBukkitTypes {
         registry.registerAction("block_interact", BlockObjective.blockInteract(null));
         registry.registerAction("block_interact_left", BlockObjective.blockInteract(Action.LEFT_CLICK_BLOCK));
         registry.registerAction("block_interact_right", BlockObjective.blockInteract(Action.RIGHT_CLICK_BLOCK));
+
+        registry.registerPersistentDataType("ctx", BukkitQuestContext.class, new BukkitQuestContext.Serializer());
     }
 }

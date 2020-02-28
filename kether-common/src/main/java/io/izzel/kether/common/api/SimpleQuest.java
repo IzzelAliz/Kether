@@ -1,9 +1,6 @@
-package io.izzel.kether.common;
+package io.izzel.kether.common.api;
 
 import com.google.common.collect.Maps;
-import io.izzel.kether.common.api.Quest;
-import io.izzel.kether.common.api.QuestAction;
-import io.izzel.kether.common.api.QuestContext;
 
 import java.util.Collections;
 import java.util.List;
