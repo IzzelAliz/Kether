@@ -37,6 +37,6 @@ shadowJar {
 }
 
 task copyToDir(type: Copy) {
-    from file("$rootDir/build/libs/kether-bukkit-1.0.0-all.jar")
-    into 'D:/spigot-1.15.2/plugins'
+    from file("$rootDir/build/libs/kether-bukkit-${project.version}-all.jar")
+    into System.getenv("SERVER_FOLDER")
 }

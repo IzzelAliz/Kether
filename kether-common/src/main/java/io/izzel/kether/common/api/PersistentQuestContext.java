@@ -74,7 +74,6 @@ public abstract class PersistentQuestContext extends AbstractQuestContext {
                 keyMatch = dataKey.equals(storedKey);
                 dataOffset = 0;
             }
-            dataOffset++;
             if (keyMatch && questAction.getDataPrefix().equals(prefix)) {
                 this.setIndex(i);
                 this.setDataKey(dataKey);
@@ -93,6 +92,7 @@ public abstract class PersistentQuestContext extends AbstractQuestContext {
                 this.dataOffset = dataOffset;
                 indexMatch = true;
             }
+            dataOffset++;
         }
         return offsetMatch || indexMatch;
     }
