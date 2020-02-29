@@ -2,7 +2,7 @@
 
 A script-like quest plugin for Minecraft servers.
 
-[![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org) [![Build status](https://img.shields.io/appveyor/build/IzzelAliz/kether)](https://ci.appveyor.com/project/IzzelAliz/kether)
+[![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org) [![Build status](https://img.shields.io/appveyor/build/IzzelAliz/kether?style=flat-square)](https://ci.appveyor.com/project/IzzelAliz/kether)
 
 ## Installing
 
