@@ -51,7 +51,12 @@ public abstract class PersistentQuestContext extends AbstractQuestContext {
         map.put("dataKey", this.getDataKey());
         map.put("dataOffset", this.dataOffset);
         try {
-            map.put("action", this.currentAction().getDataPrefix());
+            QuestAction<?, ?> action = this.currentAction();
+            if (action.isPersist()) {
+                map.put("action", action.getDataPrefix());
+            } else {
+                map.remove("action");
+            }
         } catch (Exception ignored) { }
     }
 

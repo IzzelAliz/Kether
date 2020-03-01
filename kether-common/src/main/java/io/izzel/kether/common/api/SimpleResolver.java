@@ -98,8 +98,16 @@ public final class SimpleResolver<CTX extends QuestContext> implements QuestReso
     }
 
     private void skipBlank() {
-        while (index < arr.length && Character.isWhitespace(arr[index])) {
-            index++;
+        while (index < arr.length) {
+            if (Character.isWhitespace(arr[index])) {
+                index++;
+            } else if (index + 1 < arr.length && arr[index] == '/' && arr[index + 1] == '/') {
+                while (index < arr.length && arr[index] != '\n' && arr[index] != '\r') {
+                    index++;
+                }
+            } else {
+                break;
+            }
         }
     }
 }
