@@ -62,8 +62,5 @@ public interface QuestContext {
 
     void terminate();
 
-    /**
-     * @return true if no changes
-     */
-    boolean compareChange(QuestContext context);
+    boolean isDirty();
 }

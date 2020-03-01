@@ -52,15 +52,18 @@ public abstract class AbstractSqlStorage extends AbstractStorage {
     @Override
     public CompletableFuture<Void> updateContext(String playerIdentifier, QuestContext context) {
         String questId = context.getQuest().getId();
-        return CompletableFuture.supplyAsync(() -> {
-            QuestContext prev = this.map.computeIfAbsent(playerIdentifier, k -> new HashMap<>()).put(questId, context);
-            if (!context.compareChange(prev)) {
-                return this.yaml.dump(context);
-            } else {
-                return null;
-            }
-        }, service.getExecutor())
-            .thenAcceptAsync(str -> {
+        return CompletableFuture.supplyAsync(
+            () -> {
+                this.map.computeIfAbsent(playerIdentifier, k -> new HashMap<>()).put(questId, context);
+                if (context.isDirty()) {
+                    return this.yaml.dump(context);
+                } else {
+                    return null;
+                }
+            },
+            service.getExecutor()
+        ).thenAcceptAsync(
+            str -> {
                 if (str == null) return;
                 try {
                     List<Map.Entry<String, Consumer<PreparedStatement>>> entries = updateContextStatement(playerIdentifier, questId, str);
@@ -75,7 +78,9 @@ public abstract class AbstractSqlStorage extends AbstractStorage {
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
-            }, service.getAsyncExecutor());
+            },
+            service.getAsyncExecutor()
+        );
     }
 
     @Override

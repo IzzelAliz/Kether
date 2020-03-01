@@ -69,5 +69,6 @@ public class KetherListeners implements Listener {
         for (BukkitQuestContext context : ImmutableList.copyOf(service.getRunningQuests(id))) {
             service.terminateQuest(context);
         }
+        service.getStorage().discardContext(id);
     }
 }

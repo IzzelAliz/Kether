@@ -112,7 +112,7 @@ public class SettingsContext implements QuestContext {
     }
 
     @Override
-    public boolean compareChange(QuestContext context) {
-        return true;
+    public boolean isDirty() {
+        return false;
     }
 }

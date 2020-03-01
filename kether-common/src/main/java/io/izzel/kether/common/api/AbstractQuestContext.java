@@ -271,12 +271,9 @@ public abstract class AbstractQuestContext implements QuestContext {
     }
 
     @Override
-    public boolean compareChange(QuestContext context) {
-        if (context == null) {
-            return !modified && exitStatus == null && (tempData == null || tempData.isEmpty()) && persistentData.isEmpty();
-        } else {
-            return this.equals(context);
-        }
+    public boolean isDirty() {
+        return modified || (tempData != null && !tempData.isEmpty())
+            || !persistentData.isEmpty() || exitStatus != null;
     }
 
     @SuppressWarnings("NullableProblems")
