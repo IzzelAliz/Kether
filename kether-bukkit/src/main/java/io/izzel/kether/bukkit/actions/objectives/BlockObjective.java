@@ -25,7 +25,7 @@ public abstract class BlockObjective implements QuestAction<Void, BukkitQuestCon
 
     public static QuestActionParser blockPlace() {
         return QuestActionParser.<Void, BukkitQuestContext>of(
-            resolver -> new BlockBreak(Material.matchMaterial(resolver.nextElement())),
+            resolver -> new BlockPlace(Material.matchMaterial(resolver.nextElement())),
             KetherCompleters.enumValue(Material.class)
         );
     }
