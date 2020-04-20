@@ -20,6 +20,11 @@ public class SettingsContext implements QuestContext {
     }
 
     @Override
+    public QuestService<?> getService() {
+        return service;
+    }
+
+    @Override
     public Quest getQuest() {
         return quest;
     }
