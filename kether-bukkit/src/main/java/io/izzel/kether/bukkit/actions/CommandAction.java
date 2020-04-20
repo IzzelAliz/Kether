@@ -1,6 +1,7 @@
 package io.izzel.kether.bukkit.actions;
 
 import io.izzel.kether.bukkit.BukkitQuestContext;
+import io.izzel.kether.common.api.ContextString;
 import io.izzel.kether.common.api.KetherCompleters;
 import io.izzel.kether.common.api.QuestAction;
 import io.izzel.kether.common.api.QuestActionParser;
@@ -9,17 +10,14 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.regex.Pattern;
 
 final class CommandAction implements QuestAction<Boolean, BukkitQuestContext> {
 
-    private static final Pattern PATTERN = Pattern.compile("(?<=\\s|^)%p(?=\\s|$)");
-
-    private final String command;
+    private final ContextString command;
     private final boolean console;
     private final boolean op;
 
-    public CommandAction(String command, boolean console, boolean op) {
+    public CommandAction(ContextString command, boolean console, boolean op) {
         this.command = command;
         this.console = console;
         this.op = op;
@@ -33,7 +31,7 @@ final class CommandAction implements QuestAction<Boolean, BukkitQuestContext> {
     @Override
     public CompletableFuture<Boolean> process(BukkitQuestContext context) {
         Player player = context.getPlayer();
-        String s = PATTERN.matcher(command).replaceAll(player.getName());
+        String s = command.get(context);
         if (console) {
             return CompletableFuture.completedFuture(
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), s)
@@ -76,7 +74,7 @@ final class CommandAction implements QuestAction<Boolean, BukkitQuestContext> {
                     if (s.equals("-o")) op = true;
                     else if (s.equals("-c")) console = true;
                     else {
-                        return new CommandAction(s, console, op);
+                        return new CommandAction(resolver.contexted(s), console, op);
                     }
                 }
                 throw LocalizedException.of("not-match", "-c -o", "");

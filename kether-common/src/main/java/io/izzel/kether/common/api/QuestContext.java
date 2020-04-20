@@ -11,6 +11,8 @@ public interface QuestContext {
 
     String BASE_DATA_KEY = "default";
 
+    QuestService<?> getService();
+
     Quest getQuest();
 
     String getPlayerIdentifier();

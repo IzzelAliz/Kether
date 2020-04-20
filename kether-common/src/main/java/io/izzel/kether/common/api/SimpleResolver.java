@@ -1,8 +1,12 @@
 package io.izzel.kether.common.api;
 
+import com.google.common.collect.ImmutableMap;
 import io.izzel.kether.common.util.LocalizedException;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.BiFunction;
 
 public final class SimpleResolver<CTX extends QuestContext> implements QuestResolver<CTX> {
 
@@ -73,6 +77,25 @@ public final class SimpleResolver<CTX extends QuestContext> implements QuestReso
             }
             return new String(arr, begin, index - begin);
         }
+    }
+
+    @Override
+    public ContextString nextContextString() {
+        return contexted(nextElement());
+    }
+
+    @Override
+    public ContextString contexted(String str) {
+        if (!Character.isWhitespace(peek())) {
+            String[] ids = nextElement().split(",");
+            Map<String, BiFunction<QuestContext, String, String>> map = new HashMap<>();
+            for (String id : ids) {
+                Optional<BiFunction<QuestContext, String, String>> optional = service.getRegistry().getContextStringProcessor(id);
+                optional.ifPresent(f -> map.put(id, f));
+            }
+            return new ContextString(str, map);
+        }
+        return new ContextString(str, ImmutableMap.of());
     }
 
     @Override

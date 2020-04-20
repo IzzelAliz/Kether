@@ -24,6 +24,10 @@ public interface QuestResolver<CTX extends QuestContext> {
 
     String nextElement();
 
+    ContextString nextContextString();
+
+    ContextString contexted(String str);
+
     void mark();
 
     void reset();

@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.BiFunction;
 
 public class DefaultRegistry implements QuestRegistry {
 
@@ -12,6 +13,7 @@ public class DefaultRegistry implements QuestRegistry {
     private final Map<String, KetherSerializer<?>> serializersById = new HashMap<>();
     private final Map<Class<?>, KetherSerializer<?>> serializersByClass = new HashMap<>();
     private final Map<String, Class<?>> idToClass = new HashMap<>();
+    private final Map<String, BiFunction<QuestContext, String, String>> processors = new HashMap<>();
 
     @Override
     public void registerAction(String id, QuestActionParser parser) {
@@ -23,6 +25,11 @@ public class DefaultRegistry implements QuestRegistry {
         serializersById.put(id, serializer);
         serializersByClass.put(clazz, serializer);
         idToClass.put(id, clazz);
+    }
+
+    @Override
+    public void registerContextStringProcessor(String id, BiFunction<QuestContext, String, String> processor) {
+        processors.put(id, processor);
     }
 
     @Override
@@ -55,5 +62,10 @@ public class DefaultRegistry implements QuestRegistry {
     @Override
     public <T> Optional<KetherSerializer<T>> getPersistentDataSerializer(String id) {
         return Optional.ofNullable((KetherSerializer<T>) serializersById.get(id));
+    }
+
+    @Override
+    public Optional<BiFunction<QuestContext, String, String>> getContextStringProcessor(String id) {
+        return Optional.ofNullable(processors.get(id));
     }
 }
