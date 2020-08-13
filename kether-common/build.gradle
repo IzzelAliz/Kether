@@ -11,7 +11,7 @@ repositories {
 dependencies {
     implementation 'com.google.guava:guava:18.0'
     implementation 'com.google.code.gson:gson:2.8.6'
-    implementation 'com.zaxxer:HikariCP:3.1.0'
+    implementation 'com.zaxxer:HikariCP:3.4.5'
     implementation 'org.yaml:snakeyaml:1.15'
 }
 

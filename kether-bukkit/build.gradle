@@ -19,7 +19,7 @@ dependencies {
     implementation 'org.spigotmc:spigot:1.8.8-R0.1-SNAPSHOT'
     implementation 'io.izzel.taboolib:TabooLib:5.16:all'
     implementation 'io.izzel.taboolib.loader:TabooLibloader:1.5:all'
-    implementation 'com.zaxxer:HikariCP:3.1.0'
+    implementation 'com.zaxxer:HikariCP:3.4.5'
 }
 
 processResources {
