@@ -9,7 +9,7 @@ import io.izzel.kether.common.util.LocalizedException;
 
 import java.util.concurrent.CompletableFuture;
 
-final class ExitAction<CTX extends QuestContext> implements QuestAction<Void, CTX> {
+final class ExitAction implements QuestAction<Void> {
 
     private final boolean running;
     private final boolean waiting;
@@ -22,20 +22,10 @@ final class ExitAction<CTX extends QuestContext> implements QuestAction<Void, CT
     }
 
     @Override
-    public boolean isAsync() {
-        return false;
-    }
-
-    @Override
-    public CompletableFuture<Void> process(CTX context) {
+    public CompletableFuture<Void> process(QuestContext context) {
         long actual = timeout == 0 ? 0 : System.currentTimeMillis() + timeout;
         context.setExitStatus(new ExitStatus(running, waiting, actual));
         return CompletableFuture.completedFuture(null);
-    }
-
-    @Override
-    public String getDataPrefix() {
-        return "exit";
     }
 
     @Override
@@ -53,12 +43,12 @@ final class ExitAction<CTX extends QuestContext> implements QuestAction<Void, CT
                 String element = resolver.nextElement();
                 switch (element) {
                     case "success":
-                        return new ExitAction<>(false, false, 0);
+                        return new ExitAction(false, false, 0);
                     case "pause":
-                        return new ExitAction<>(true, false, 0);
+                        return new ExitAction(true, false, 0);
                     case "cooldown":
                         long l = resolver.nextLong();
-                        return new ExitAction<>(false, true, l);
+                        return new ExitAction(false, true, l);
                     default:
                         throw LocalizedException.of("not-match", "success|pause|cooldown", element);
                 }

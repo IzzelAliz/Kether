@@ -8,7 +8,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Locale;
 
-public interface QuestResolver<CTX extends QuestContext> {
+public interface QuestResolver {
 
     char peek();
 
@@ -32,7 +32,7 @@ public interface QuestResolver<CTX extends QuestContext> {
 
     void reset();
 
-    <T> QuestAction<T, CTX> nextAction();
+    <T> QuestAction<T> nextAction();
 
     default void consume(String value) {
         String element = nextElement();
@@ -81,12 +81,12 @@ public interface QuestResolver<CTX extends QuestContext> {
         }
     }
 
-    default List<QuestAction<?, CTX>> nextList() {
+    default List<QuestAction<?>> nextList() {
         String element = this.nextElement();
         if (!ImmutableList.of("[", "begin").contains(element)) {
             throw LocalizedException.of("not-match", "[ / begin", element);
         }
-        ImmutableList.Builder<QuestAction<?, CTX>> builder = ImmutableList.builder();
+        ImmutableList.Builder<QuestAction<?>> builder = ImmutableList.builder();
         while (this.hasNext()) {
             this.mark();
             String end = this.nextElement();
@@ -101,7 +101,7 @@ public interface QuestResolver<CTX extends QuestContext> {
         return builder.build();
     }
 
-    static <C extends QuestContext> QuestResolver<C> of(QuestService<C> service, String text) {
+    static QuestResolver of(QuestService<?> service, String text) {
         return new SimpleResolver<>(service, text);
     }
 }

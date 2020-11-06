@@ -8,14 +8,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
-public final class SimpleResolver<CTX extends QuestContext> implements QuestResolver<CTX> {
+public final class SimpleResolver implements QuestResolver {
 
-    private final QuestService<CTX> service;
+    private final QuestService<?> service;
     private final char[] arr;
     private int index = 0;
     private int mark = 0;
 
-    public SimpleResolver(QuestService<CTX> service, String text) {
+    public SimpleResolver(QuestService<?> service, String text) {
         this.service = service;
         this.arr = text.toCharArray();
     }
@@ -109,7 +109,7 @@ public final class SimpleResolver<CTX extends QuestContext> implements QuestReso
     }
 
     @Override
-    public <T> QuestAction<T, CTX> nextAction() {
+    public <T> QuestAction<T> nextAction() {
         skipBlank();
         String element = nextElement();
         Optional<QuestActionParser> optional = service.getRegistry().getParser(element);

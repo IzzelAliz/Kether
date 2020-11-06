@@ -10,17 +10,12 @@ import org.bukkit.Bukkit;
 
 import java.util.concurrent.CompletableFuture;
 
-final class TimeoutAction implements QuestAction<Void, BukkitQuestContext> {
+final class TimeoutAction implements QuestAction<Void> {
 
     private final long ticks;
 
     public TimeoutAction(long ticks) {
         this.ticks = ticks;
-    }
-
-    @Override
-    public boolean isAsync() {
-        return true;
     }
 
     @Override
@@ -34,11 +29,6 @@ final class TimeoutAction implements QuestAction<Void, BukkitQuestContext> {
             )
         ));
         return future;
-    }
-
-    @Override
-    public String getDataPrefix() {
-        return "timeout";
     }
 
     @Override

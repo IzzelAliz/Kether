@@ -9,38 +9,23 @@ import io.izzel.kether.common.api.QuestService;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-final class AwaitAllAction<CTX extends QuestContext> implements QuestAction<Void, CTX> {
+final class AwaitAllAction implements QuestAction<Void> {
 
-    private final List<QuestAction<?, CTX>> actions;
+    private final List<QuestAction<?>> actions;
 
-    public AwaitAllAction(List<QuestAction<?, CTX>> actions) {
+    public AwaitAllAction(List<QuestAction<?>> actions) {
         this.actions = actions;
     }
 
     @Override
-    public boolean isAsync() {
-        return true;
-    }
-
-    @Override
-    public boolean isPersist() {
-        return actions.stream().anyMatch(QuestAction::isPersist);
-    }
-
-    @Override
-    public CompletableFuture<Void> process(CTX context) {
+    public CompletableFuture<Void> process(QuestContext context) {
         CompletableFuture<?>[] futures = new CompletableFuture[actions.size()];
         for (int i = 0; i < actions.size(); i++) {
-            QuestAction<?, CTX> action = actions.get(i);
-            CompletableFuture<?> future = context.runAction(String.valueOf(i), action);
+            QuestAction<?> action = actions.get(i);
+            CompletableFuture<?> future = context.runAction(action);
             futures[i] = future;
         }
         return CompletableFuture.allOf(futures);
-    }
-
-    @Override
-    public String getDataPrefix() {
-        return "await_all";
     }
 
     @Override
@@ -52,7 +37,7 @@ final class AwaitAllAction<CTX extends QuestContext> implements QuestAction<Void
 
     public static QuestActionParser parser(QuestService<?> service) {
         return QuestActionParser.of(
-            resolver -> new AwaitAllAction<>(resolver.nextList()),
+            resolver -> new AwaitAllAction(resolver.nextList()),
             KetherCompleters.list(service)
         );
     }

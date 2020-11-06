@@ -55,11 +55,7 @@ public abstract class AbstractSqlStorage extends AbstractStorage {
         return CompletableFuture.supplyAsync(
             () -> {
                 this.map.computeIfAbsent(playerIdentifier, k -> new HashMap<>()).put(questId, context);
-                if (context.isDirty()) {
-                    return this.yaml.dump(context);
-                } else {
-                    return null;
-                }
+                return this.yaml.dump(context);
             },
             service.getExecutor()
         ).thenAcceptAsync(

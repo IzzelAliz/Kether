@@ -1,9 +1,8 @@
-package io.izzel.kether.common;
+package io.izzel.kether.common.loader;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import io.izzel.kether.common.actions.DataAction;
 import io.izzel.kether.common.api.Quest;
 import io.izzel.kether.common.api.QuestAction;
 import io.izzel.kether.common.api.QuestContext;
@@ -67,12 +66,12 @@ public class QuestLoader {
             int i = iterator.nextIndex();
             Set<String> data = new HashSet<>();
             Map.Entry<String, String> entry = iterator.next();
-            ImmutableList.Builder<QuestAction<?, CTX>> builder = ImmutableList.builder();
+            ImmutableList.Builder<QuestAction<?>> builder = ImmutableList.builder();
             QuestResolver<CTX> resolver = QuestResolver.of(service, entry.getValue());
             try {
                 while (resolver.hasNext()) {
                     int index = resolver.getIndex();
-                    QuestAction<Object, CTX> action = resolver.nextAction();
+                    QuestAction<Object> action = resolver.nextAction();
                     if (action instanceof DataAction) {
                         data.clear();
                     } else if (action.isPersist()) {
@@ -132,8 +131,8 @@ public class QuestLoader {
         return new QuestLoader(path);
     }
 
-    public static <CTX extends QuestContext> Map<String, Quest> loadFolder(
-        Path folder, QuestService<CTX> service, Logger logger
+    public static Map<String, Quest> loadFolder(
+        Path folder, QuestService<?> service, Logger logger
     ) throws IOException {
         Map<String, Quest> questMap = new HashMap<>();
         if (Files.notExists(folder)) Files.createDirectories(folder);

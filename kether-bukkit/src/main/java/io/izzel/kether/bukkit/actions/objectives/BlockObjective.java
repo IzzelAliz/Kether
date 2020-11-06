@@ -14,7 +14,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 import java.util.concurrent.CompletableFuture;
 
-public abstract class BlockObjective implements QuestAction<Void, BukkitQuestContext> {
+public abstract class BlockObjective implements QuestAction<Void> {
 
     public static QuestActionParser blockBreak() {
         return QuestActionParser.<Void, BukkitQuestContext>of(
@@ -43,11 +43,6 @@ public abstract class BlockObjective implements QuestAction<Void, BukkitQuestCon
         this.material = material;
     }
 
-    @Override
-    public boolean isAsync() {
-        return true;
-    }
-
     public static class BlockInteract extends BlockObjective {
 
         private final Action action;
@@ -69,11 +64,6 @@ public abstract class BlockObjective implements QuestAction<Void, BukkitQuestCon
                 event -> future.complete(null)
             ));
             return future;
-        }
-
-        @Override
-        public String getDataPrefix() {
-            return "block_interact";
         }
 
         @Override
@@ -105,11 +95,6 @@ public abstract class BlockObjective implements QuestAction<Void, BukkitQuestCon
         }
 
         @Override
-        public String getDataPrefix() {
-            return "block_place";
-        }
-
-        @Override
         public String toString() {
             return "BlockPlace{" +
                 "material=" + material +
@@ -134,11 +119,6 @@ public abstract class BlockObjective implements QuestAction<Void, BukkitQuestCon
                 event -> future.complete(null)
             ));
             return future;
-        }
-
-        @Override
-        public String getDataPrefix() {
-            return "block_break";
         }
 
         @Override

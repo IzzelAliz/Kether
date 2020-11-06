@@ -7,7 +7,7 @@ import io.izzel.kether.common.api.QuestContext;
 
 import java.util.concurrent.CompletableFuture;
 
-final class SetAction<CTX extends QuestContext> implements QuestAction<Void, CTX> {
+final class SetAction implements QuestAction<Void> {
 
     private final String key;
     private final String value;
@@ -18,23 +18,13 @@ final class SetAction<CTX extends QuestContext> implements QuestAction<Void, CTX
     }
 
     @Override
-    public boolean isAsync() {
-        return false;
-    }
-
-    @Override
-    public CompletableFuture<Void> process(CTX context) {
+    public CompletableFuture<Void> process(QuestContext context) {
         if (value == null || value.equals("null")) {
-            context.getPersistentData().remove(key);
+            context.putLocal(key, null);
         } else {
-            context.getPersistentData().put(key, value);
+            context.putLocal(key, value);
         }
         return CompletableFuture.completedFuture(null);
-    }
-
-    @Override
-    public String getDataPrefix() {
-        return "set";
     }
 
     @Override
@@ -47,7 +37,7 @@ final class SetAction<CTX extends QuestContext> implements QuestAction<Void, CTX
 
     public static QuestActionParser parser() {
         return QuestActionParser.of(
-            resolver -> new SetAction<>(resolver.nextElement(), resolver.nextElement()),
+            resolver -> new SetAction(resolver.nextElement(), resolver.nextElement()),
             KetherCompleters.seq(
                 KetherCompleters.consume(),
                 KetherCompleters.consume()

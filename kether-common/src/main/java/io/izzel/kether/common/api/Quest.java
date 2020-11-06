@@ -16,6 +16,10 @@ public interface Quest {
 
         String getLabel();
 
-        <C extends QuestContext> List<QuestAction<?, C>> getActions();
+        List<QuestAction<?>> getActions();
+
+        Optional<QuestAction<?>> findAction(int address);
+
+        int getAddress(QuestAction<?> action);
     }
 }

@@ -2,33 +2,16 @@ package io.izzel.kether.common.api;
 
 import java.util.concurrent.CompletableFuture;
 
-public interface QuestAction<T, CTX extends QuestContext> {
+public interface QuestAction<T> {
 
-    boolean isAsync();
+    CompletableFuture<T> process(QuestContext context);
 
-    default boolean isPersist() {
-        return false;
-    }
-
-    CompletableFuture<T> process(CTX context);
-
-    String getDataPrefix();
-
-    static <T, C extends QuestContext> QuestAction<T, C> noop() {
-        return new QuestAction<T, C>() {
-            @Override
-            public boolean isAsync() {
-                return false;
-            }
+    static <T> QuestAction<T> noop() {
+        return new QuestAction<T>() {
 
             @Override
-            public CompletableFuture<T> process(C context) {
+            public CompletableFuture<T> process(QuestContext context) {
                 return CompletableFuture.completedFuture(null);
-            }
-
-            @Override
-            public String getDataPrefix() {
-                return "noop";
             }
 
             @Override

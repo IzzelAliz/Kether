@@ -9,35 +9,20 @@ import io.izzel.kether.common.util.Coerce;
 
 import java.util.concurrent.CompletableFuture;
 
-final class NotAction<CTX extends QuestContext> implements QuestAction<Boolean, CTX> {
+final class NotAction implements QuestAction<Boolean> {
 
-    private final QuestAction<?, CTX> action;
+    private final QuestAction<?> action;
 
-    public NotAction(QuestAction<?, CTX> action) {
+    public NotAction(QuestAction<?> action) {
         this.action = action;
     }
 
     @Override
-    public boolean isAsync() {
-        return action.isAsync();
-    }
-
-    @Override
-    public boolean isPersist() {
-        return action.isPersist();
-    }
-
-    @Override
-    public CompletableFuture<Boolean> process(CTX context) {
-        return context.runAction("not", action).thenApplyAsync(
+    public CompletableFuture<Boolean> process(QuestContext context) {
+        return context.runAction(action).thenApplyAsync(
             t -> !Coerce.toBoolean(t),
             context.getExecutor()
         );
-    }
-
-    @Override
-    public String getDataPrefix() {
-        return "not";
     }
 
     @Override
@@ -49,7 +34,7 @@ final class NotAction<CTX extends QuestContext> implements QuestAction<Boolean, 
 
     public static QuestActionParser parser(QuestService<?> service) {
         return QuestActionParser.of(
-            resolver -> new NotAction<>(resolver.nextAction()),
+            resolver -> new NotAction(resolver.nextAction()),
             KetherCompleters.action(service)
         );
     }

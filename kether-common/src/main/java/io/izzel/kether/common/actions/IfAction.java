@@ -9,52 +9,29 @@ import io.izzel.kether.common.util.Coerce;
 
 import java.util.concurrent.CompletableFuture;
 
-final class IfAction<U, CTX extends QuestContext> implements QuestAction<U, CTX> {
+final class IfAction<U> implements QuestAction<U> {
 
-    private final QuestAction<?, CTX> condition;
-    private final QuestAction<U, CTX> trueAction;
-    private final QuestAction<U, CTX> falseAction;
+    private final QuestAction<?> condition;
+    private final QuestAction<U> trueAction;
+    private final QuestAction<U> falseAction;
 
-    public IfAction(QuestAction<?, CTX> condition, QuestAction<U, CTX> trueAction, QuestAction<U, CTX> falseAction) {
+    public IfAction(QuestAction<?> condition, QuestAction<U> trueAction, QuestAction<U> falseAction) {
         this.condition = condition;
         this.trueAction = trueAction;
         this.falseAction = falseAction;
     }
 
     @Override
-    public boolean isAsync() {
-        return condition.isAsync() || trueAction.isAsync() || falseAction.isAsync();
-    }
-
-    @Override
-    public boolean isPersist() {
-        return condition.isPersist() || trueAction.isPersist() || falseAction.isPersist();
-    }
-
-    @Override
-    public String getDataPrefix() {
-        return "if";
-    }
-
-    @Override
     public CompletableFuture<U> process(QuestContext context) {
-        if (isAsync()) {
-            CompletableFuture<U> future = new CompletableFuture<>();
-            context.runAction("condition", condition).thenAcceptAsync(t -> {
-                if (Coerce.toBoolean(t)) {
-                    context.runAction("trueAction", trueAction).thenAccept(future::complete);
-                } else {
-                    context.runAction("falseAction", falseAction).thenAccept(future::complete);
-                }
-            }, context.getExecutor());
-            return future;
-        } else {
-            if (Coerce.toBoolean(context.runAction("condition", condition).join())) {
-                return context.runAction("trueAction", trueAction);
+        CompletableFuture<U> future = new CompletableFuture<>();
+        context.runAction(condition).thenAcceptAsync(t -> {
+            if (Coerce.toBoolean(t)) {
+                context.runAction(trueAction).thenAccept(future::complete);
             } else {
-                return context.runAction("falseAction", falseAction);
+                context.runAction(falseAction).thenAccept(future::complete);
             }
-        }
+        }, context.getExecutor());
+        return future;
     }
 
     @Override
@@ -67,16 +44,16 @@ final class IfAction<U, CTX extends QuestContext> implements QuestAction<U, CTX>
     }
 
     public static <U, CTX extends QuestContext> QuestActionParser parser(QuestService<CTX> service) {
-        return QuestActionParser.<U, CTX>of(
+        return QuestActionParser.of(
             resolver -> {
-                QuestAction<?, CTX> condition = resolver.nextAction();
+                QuestAction<?> condition = resolver.nextAction();
                 resolver.consume("then");
-                QuestAction<U, CTX> trueAction = resolver.nextAction();
+                QuestAction<U> trueAction = resolver.nextAction();
                 if (resolver.hasNext()) {
                     resolver.mark();
                     String element = resolver.nextElement();
                     if (element.equals("else")) {
-                        QuestAction<U, CTX> falseAction = resolver.nextAction();
+                        QuestAction<U> falseAction = resolver.nextAction();
                         return new IfAction<>(condition, trueAction, falseAction);
                     } else {
                         resolver.reset();

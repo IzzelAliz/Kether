@@ -7,7 +7,7 @@ import io.izzel.kether.common.api.QuestContext;
 
 import java.util.concurrent.CompletableFuture;
 
-final class GotoAction<CTX extends QuestContext> implements QuestAction<Void, CTX> {
+final class GotoAction implements QuestAction<Void> {
 
     private final String block;
 
@@ -16,19 +16,9 @@ final class GotoAction<CTX extends QuestContext> implements QuestAction<Void, CT
     }
 
     @Override
-    public boolean isAsync() {
-        return false;
-    }
-
-    @Override
-    public CompletableFuture<Void> process(CTX context) {
-        context.setJump(block, 0);
+    public CompletableFuture<Void> process(QuestContext context) {
+        context.setBlock(context.getQuest().getBlocks().get(block));
         return CompletableFuture.completedFuture(null);
-    }
-
-    @Override
-    public String getDataPrefix() {
-        return "goto";
     }
 
     @Override
@@ -40,7 +30,7 @@ final class GotoAction<CTX extends QuestContext> implements QuestAction<Void, CT
 
     public static QuestActionParser parser() {
         return QuestActionParser.of(
-            resolver -> new GotoAction<>(resolver.nextElement()),
+            resolver -> new GotoAction(resolver.nextElement()),
             KetherCompleters.consume()
         );
     }

@@ -3,7 +3,7 @@ package io.izzel.kether.bukkit;
 import io.izzel.kether.common.api.AbstractQuestContext;
 import io.izzel.kether.common.api.ExitStatus;
 import io.izzel.kether.common.api.KetherSerializer;
-import io.izzel.kether.common.api.PersistentQuestContext;
+import io.izzel.kether.common.api.persistent.PersistentQuestContext;
 import io.izzel.kether.common.api.Quest;
 import io.izzel.kether.common.api.QuestContext;
 import io.izzel.kether.common.api.QuestService;
@@ -39,7 +39,7 @@ public class BukkitQuestContext extends PersistentQuestContext {
     @SuppressWarnings("unchecked")
     @Override
     public <C extends QuestContext> C createChild(String key, boolean anonymous) {
-        BukkitQuestContext context = new BukkitQuestContext(getService(), this, getQuest(), getPlayerIdentifier(), getRunningBlock(), getIndex(), QuestContext.BASE_DATA_KEY, null, getPersistentData(), key, anonymous);
+        BukkitQuestContext context = new BukkitQuestContext(getService(), this, getQuest(), getPlayerIdentifier(), getBlockRunning(), getIndex(), QuestContext.BASE_DATA_KEY, null, getPersistentData(), key, anonymous);
         this.children.addLast(context);
         return (C) context;
     }

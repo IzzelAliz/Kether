@@ -9,49 +9,27 @@ import io.izzel.kether.common.util.Coerce;
 
 import java.util.concurrent.CompletableFuture;
 
-final class WhileAction<CTX extends QuestContext> implements QuestAction<Void, CTX> {
+final class WhileAction implements QuestAction<Void> {
 
-    private final QuestAction<?, CTX> condition;
-    private final QuestAction<?, CTX> action;
+    private final QuestAction<?> condition;
+    private final QuestAction<?> action;
 
-    public WhileAction(QuestAction<?, CTX> condition, QuestAction<?, CTX> action) {
+    public WhileAction(QuestAction<?> condition, QuestAction<?> action) {
         this.condition = condition;
         this.action = action;
     }
 
     @Override
-    public boolean isAsync() {
-        return condition.isAsync() || action.isAsync();
+    public CompletableFuture<Void> process(QuestContext context) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        process(context, future);
+        return future;
     }
 
-    @Override
-    public boolean isPersist() {
-        return condition.isPersist() || action.isPersist();
-    }
-
-    @Override
-    public CompletableFuture<Void> process(CTX context) {
-        if (isAsync()) {
-            CompletableFuture<Void> future = new CompletableFuture<>();
-            process(context, future);
-            return future;
-        } else {
-            while (Coerce.toBoolean(context.runAction("condition", condition).join())) {
-                context.runAction("action", action).join();
-            }
-            return CompletableFuture.completedFuture(null);
-        }
-    }
-
-    @Override
-    public String getDataPrefix() {
-        return "while";
-    }
-
-    private void process(CTX context, CompletableFuture<Void> future) {
-        context.runAction("condition", condition).thenAcceptAsync(t -> {
+    private void process(QuestContext context, CompletableFuture<Void> future) {
+        context.runAction(condition).thenAcceptAsync(t -> {
             if (Coerce.toBoolean(t)) {
-                context.runAction("action", action).thenRunAsync(
+                context.runAction(action).thenRunAsync(
                     () -> process(context, future),
                     context.getExecutor()
                 );
@@ -69,13 +47,13 @@ final class WhileAction<CTX extends QuestContext> implements QuestAction<Void, C
             '}';
     }
 
-    public static <CTX extends QuestContext> QuestActionParser parser(QuestService<CTX> service) {
-        return QuestActionParser.<Void, CTX>of(
+    public static QuestActionParser parser(QuestService<?> service) {
+        return QuestActionParser.of(
             resolver -> {
-                QuestAction<?, CTX> condition = resolver.nextAction();
+                QuestAction<?> condition = resolver.nextAction();
                 resolver.consume("then");
-                QuestAction<?, CTX> action = resolver.nextAction();
-                return new WhileAction<>(condition, action);
+                QuestAction<?> action = resolver.nextAction();
+                return new WhileAction(condition, action);
             },
             KetherCompleters.seq(
                 KetherCompleters.action(service),

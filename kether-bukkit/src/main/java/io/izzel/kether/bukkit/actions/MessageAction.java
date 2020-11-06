@@ -12,7 +12,7 @@ import org.bukkit.entity.Player;
 
 import java.util.concurrent.CompletableFuture;
 
-final class MessageAction implements QuestAction<Void, BukkitQuestContext> {
+final class MessageAction implements QuestAction<Void> {
 
     private final ContextString message;
     private final long timeoutTicks;
@@ -22,8 +22,7 @@ final class MessageAction implements QuestAction<Void, BukkitQuestContext> {
         this.timeoutTicks = timeoutTicks;
     }
 
-    @Override
-    public boolean isAsync() {
+    private boolean isAsync() {
         return timeoutTicks != 0L;
     }
 
@@ -47,11 +46,6 @@ final class MessageAction implements QuestAction<Void, BukkitQuestContext> {
             player.sendMessage(s);
             return CompletableFuture.completedFuture(null);
         }
-    }
-
-    @Override
-    public String getDataPrefix() {
-        return "message";
     }
 
     @Override

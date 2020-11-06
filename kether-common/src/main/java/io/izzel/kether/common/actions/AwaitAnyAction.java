@@ -9,38 +9,23 @@ import io.izzel.kether.common.api.QuestService;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-final class AwaitAnyAction<CTX extends QuestContext> implements QuestAction<Object, CTX> {
+final class AwaitAnyAction implements QuestAction<Object> {
 
-    private final List<QuestAction<?, CTX>> actions;
+    private final List<QuestAction<?>> actions;
 
-    public AwaitAnyAction(List<QuestAction<?, CTX>> actions) {
+    public AwaitAnyAction(List<QuestAction<?>> actions) {
         this.actions = actions;
     }
 
     @Override
-    public boolean isAsync() {
-        return true;
-    }
-
-    @Override
-    public boolean isPersist() {
-        return actions.stream().anyMatch(QuestAction::isPersist);
-    }
-
-    @Override
-    public CompletableFuture<Object> process(CTX context) {
+    public CompletableFuture<Object> process(QuestContext context) {
         CompletableFuture<?>[] futures = new CompletableFuture[actions.size()];
         for (int i = 0; i < actions.size(); i++) {
-            QuestAction<?, CTX> action = actions.get(i);
-            CompletableFuture<?> future = context.runAction(String.valueOf(i), action);
+            QuestAction<?> action = actions.get(i);
+            CompletableFuture<?> future = context.runAction(action);
             futures[i] = future;
         }
         return CompletableFuture.anyOf(futures);
-    }
-
-    @Override
-    public String getDataPrefix() {
-        return "await_any";
     }
 
     @Override
@@ -52,20 +37,8 @@ final class AwaitAnyAction<CTX extends QuestContext> implements QuestAction<Obje
 
     public static QuestActionParser parser(QuestService<?> service) {
         return QuestActionParser.of(
-            resolver -> new AwaitAnyAction<>(resolver.nextList()),
-            KetherCompleters.seq(
-                KetherCompleters.firstParsing(
-                    KetherCompleters.constant("["),
-                    KetherCompleters.constant("begin")
-                ),
-                KetherCompleters.some(
-                    KetherCompleters.action(service)
-                ),
-                KetherCompleters.firstParsing(
-                    KetherCompleters.constant("]"),
-                    KetherCompleters.constant("end")
-                )
-            )
+            resolver -> new AwaitAnyAction(resolver.nextList()),
+            KetherCompleters.list(service)
         );
     }
 }

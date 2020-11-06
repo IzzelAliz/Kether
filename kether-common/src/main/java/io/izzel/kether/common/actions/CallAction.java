@@ -1,13 +1,14 @@
 package io.izzel.kether.common.actions;
 
 import io.izzel.kether.common.api.KetherCompleters;
+import io.izzel.kether.common.api.Quest;
 import io.izzel.kether.common.api.QuestAction;
 import io.izzel.kether.common.api.QuestActionParser;
 import io.izzel.kether.common.api.QuestContext;
 
 import java.util.concurrent.CompletableFuture;
 
-final class CallAction<CTX extends QuestContext> implements QuestAction<Void, CTX> {
+final class CallAction implements QuestAction<Object> {
 
     private final String block;
 
@@ -16,25 +17,12 @@ final class CallAction<CTX extends QuestContext> implements QuestAction<Void, CT
     }
 
     @Override
-    public boolean isAsync() {
-        return true;
-    }
-
-    @Override
-    public boolean isPersist() {
-        return true;
-    }
-
-    @Override
-    public CompletableFuture<Void> process(CTX context) {
-        QuestContext child = context.createChild("call", false);
-        child.setJump(block, 0);
+    public CompletableFuture<Object> process(QuestContext context) {
+        QuestContext child = context.createChild();
+        Quest.Block block = child.getQuest().getBlocks().get(this.block);
+        child.setBlock(block);
+        context.addClosable(child::terminate);
         return child.runActions();
-    }
-
-    @Override
-    public String getDataPrefix() {
-        return "call_" + block;
     }
 
     @Override
@@ -44,9 +32,9 @@ final class CallAction<CTX extends QuestContext> implements QuestAction<Void, CT
             '}';
     }
 
-    public static <C extends QuestContext> QuestActionParser parser() {
-        return QuestActionParser.<Void, C>of(
-            resolver -> new CallAction<>(resolver.nextElement()),
+    public static QuestActionParser parser() {
+        return QuestActionParser.of(
+            resolver -> new CallAction(resolver.nextElement()),
             KetherCompleters.consume()
         );
     }

@@ -3,62 +3,63 @@ package io.izzel.kether.common.api;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public abstract class AbstractQuestContext implements QuestContext {
+public abstract class AbstractQuestContext<This extends AbstractQuestContext<This>> implements QuestContext {
 
-    private final QuestService<?> service;
-    protected final AbstractQuestContext parent;
-    protected final String childKey;
-    private final Quest quest;
-    private final String playerIdentifier;
+    protected final QuestService<This> service;
+    protected final Map<Integer, QuestContext> owningContexts = new HashMap<>();
+    protected final AtomicInteger contextCounter = new AtomicInteger(0);
     private final QuestExecutor executor;
-    private final boolean anonymous;
-    protected String runningBlock;
-    protected int index;
-    protected String dataKey;
-    protected Map<String, Object> tempData;
-    protected Map<String, Object> persistentData;
+    protected This owner;
+    private Quest quest;
+    private String playerIdentifier;
+    protected Quest.Block block;
+    protected int index = 0;
+    protected Map<String, Object> locals;
     protected ExitStatus exitStatus;
-    private CompletableFuture<Void> completeFuture;
-
-    private boolean doJump;
-    private String jumpBlock;
-    private int jumpIndex;
-    private boolean modified = false;
+    private CompletableFuture<Object> completeFuture;
 
     protected Deque<AutoCloseable> closeables = new LinkedBlockingDeque<>();
-    protected Deque<AbstractQuestContext> children = new LinkedBlockingDeque<>();
 
-    protected AbstractQuestContext(QuestService<?> service, AbstractQuestContext parent, Quest quest, String playerIdentifier, String runningBlock, int index, String dataKey, Map<String, Object> tempData, Map<String, Object> persistentData, String childKey, boolean anonymous) {
+    @SuppressWarnings("unchecked")
+    protected AbstractQuestContext(QuestService<This> service) {
         this.service = service;
-        this.parent = parent;
-        this.quest = quest;
-        this.playerIdentifier = playerIdentifier;
-        this.runningBlock = runningBlock;
-        this.index = index;
-        this.tempData = tempData;
-        this.persistentData = persistentData;
-        this.childKey = childKey;
-        this.dataKey = dataKey;
-        this.anonymous = anonymous;
+        this.owner = (This) this;
         this.executor = new QuestExecutor();
     }
 
     protected abstract Executor createExecutor();
 
-    public abstract <C extends QuestContext> C createChild(String key, boolean anonymous);
+    public abstract This createChild();
+
+    protected void copy(This from) {
+        this.owner = from.owner;
+        this.quest = from.getQuest();
+        this.playerIdentifier = from.getPlayerIdentifier();
+        this.block = from.block;
+        this.index = from.index;
+        this.locals = from.locals;
+        this.exitStatus = from.exitStatus;
+        owner.owningContexts.put(owner.contextCounter.getAndIncrement(), this);
+    }
 
     @Override
     public void terminate() {
-        for (AbstractQuestContext child : getChildren()) {
-            child.exitStatus = this.exitStatus;
-            child.terminate();
+        for (QuestContext context : this.owningContexts.values()) {
+            context.terminate();
         }
+        this.cleanup();
+        if (completeFuture != null && !completeFuture.isDone()) {
+            completeFuture.complete(null);
+        }
+    }
+
+    private void cleanup() {
         while (!closeables.isEmpty()) {
             try {
                 closeables.pollFirst().close();
@@ -66,31 +67,9 @@ public abstract class AbstractQuestContext implements QuestContext {
                 e.printStackTrace();
             }
         }
-        if (exitStatus != null && !exitStatus.equals(ExitStatus.paused()) && this.tempData != null) {
-            this.tempData.clear();
-        }
-        if (completeFuture != null) {
-            completeFuture.complete(null);
-        }
     }
 
-    protected void nextAction() {
-        this.tempData.clear();
-        if (this.doJump) {
-            setRunningBlock(jumpBlock);
-            setIndex(jumpIndex);
-            this.doJump = false;
-        } else {
-            setIndex(getIndex() + 1);
-        }
-        modified = true;
-    }
-
-    protected Deque<AbstractQuestContext> getChildren() {
-        return children;
-    }
-
-    public QuestService<?> getService() {
+    public QuestService<This> getService() {
         return service;
     }
 
@@ -105,54 +84,13 @@ public abstract class AbstractQuestContext implements QuestContext {
     }
 
     @Override
-    public String getRunningBlock() {
-        return runningBlock;
+    public Quest.Block getBlockRunning() {
+        return block;
     }
 
-    public void setRunningBlock(String runningBlock) {
-        if (anonymous) {
-            parent.setRunningBlock(runningBlock);
-        } else {
-            this.runningBlock = runningBlock;
-        }
-    }
-
-    @Override
-    public int getIndex() {
-        return index;
-    }
-
-    public void setIndex(int index) {
-        if (anonymous) {
-            parent.setIndex(index);
-        } else {
-            this.index = index;
-        }
-    }
-
-    @Override
-    public void setDataKey(String key) {
-        if (anonymous) {
-            parent.setDataKey(key);
-        } else {
-            this.dataKey = key;
-        }
-    }
-
-    @Override
-    public String getDataKey() {
-        return dataKey;
-    }
-
-    @Override
-    public void setJump(String block, int index) {
-        if (anonymous) {
-            parent.setJump(block, index);
-        } else {
-            doJump = true;
-            jumpBlock = block;
-            jumpIndex = index;
-        }
+    public void setBlock(Quest.Block block) {
+        this.block = block;
+        this.index = 0;
     }
 
     @Override
@@ -161,12 +99,10 @@ public abstract class AbstractQuestContext implements QuestContext {
             this.exitStatus = null;
         } else if (this.exitStatus == null) {
             this.exitStatus = exitStatus;
-            AbstractQuestContext root = this;
-            while (root.parent != null) root = root.parent;
-            if (root.exitStatus == null) {
-                root.exitStatus = this.exitStatus;
+            if (this.owner.exitStatus == null) {
+                this.owner.exitStatus = this.exitStatus;
             }
-            root.terminate();
+            this.owner.terminate();
         }
     }
 
@@ -176,43 +112,45 @@ public abstract class AbstractQuestContext implements QuestContext {
     }
 
     @Override
-    public Executor getExecutor() {
-        if (parent != null) return parent.getExecutor();
+    public QuestExecutor getExecutor() {
         return executor;
     }
 
     @Override
-    public CompletableFuture<Void> runActions() {
+    public CompletableFuture<Object> runActions() {
         if (completeFuture == null) {
             completeFuture = new CompletableFuture<>();
-            process();
+            process(null);
             return completeFuture;
         } else {
             throw new IllegalStateException("rerun context");
         }
     }
 
-    private void process() {
+    private Optional<? extends QuestAction<?>> nextAction() {
+        Optional<? extends QuestAction<?>> optional =
+            this.index < this.block.getActions().size() ? Optional.of(this.block.getActions().get(this.index)) : Optional.empty();
+        this.index++;
+        return optional;
+    }
+
+    private void process(CompletableFuture<?> future) {
         while (exitStatus == null) {
-            Optional<? extends QuestAction<?, QuestContext>> optional = quest.getBlock(getRunningBlock())
-                .map(block -> getIndex() < block.getActions().size() ? block.getActions().get(getIndex()) : null);
+            Optional<? extends QuestAction<?>> optional = nextAction();
             if (optional.isPresent()) {
-                QuestAction<?, QuestContext> action = optional.get();
-                if (action.isAsync()) {
-                    CompletableFuture<?> ret = runAction(action.getDataPrefix(), action);
-                    ret.thenRunAsync(() -> {
-                        nextAction();
-                        process();
-                    }, getExecutor());
+                QuestAction<?> action = optional.get();
+                CompletableFuture<?> newFuture = this.runAction(action);
+                if (!newFuture.isDone()) {
+                    newFuture.thenRunAsync(() -> this.process(newFuture), this.getExecutor());
                     return;
                 } else {
-                    runAction(action.getDataPrefix(), action).join();
-                    nextAction();
+                    future = newFuture;
                 }
             } else {
                 if (exitStatus == null) {
                     this.exitStatus = ExitStatus.success();
                 }
+                this.completeFuture.complete(future != null && future.isDone() ? future.join() : null);
                 this.terminate();
                 return;
             }
@@ -220,60 +158,34 @@ public abstract class AbstractQuestContext implements QuestContext {
     }
 
     @Override
-    public <T, C extends QuestContext> CompletableFuture<T> runAction(String key, QuestAction<T, C> action) {
-        C child = this.createChild(key, true);
-        CompletableFuture<T> future = action.process(child);
+    public <T> CompletableFuture<T> runAction(QuestAction<T> action) {
+        CompletableFuture<T> future = action.process(this);
         return future.thenApplyAsync(t -> {
-            child.terminate();
+            this.cleanup();
             return t;
         }, getExecutor());
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public Map<String, Object> getTempData() {
-        if (tempData == null) { // lazy load
-            if (parent != null) {
-                tempData = (Map<String, Object>) parent.getTempData().computeIfAbsent(childKey, k -> new HashMap<>());
-            } else {
-                tempData = new HashMap<>();
-            }
-        }
-        return tempData;
+    public Map<String, Object> locals() {
+        return this.locals;
     }
 
     @Override
-    public Map<String, Object> getPersistentData() {
-        if (parent != null) return parent.getPersistentData();
-        else return persistentData;
+    public void putLocal(String key, Object value) {
+        this.locals.put(key, value);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T getLocal(String key) {
+        return (T) this.locals.get(key);
     }
 
     @Override
     public <T extends AutoCloseable> T addClosable(T closeable) {
         this.closeables.addFirst(closeable);
         return closeable;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        AbstractQuestContext that = (AbstractQuestContext) o;
-        return getDataKey().equals(that.getDataKey()) &&
-            Objects.equals(getTempData(), that.getTempData()) &&
-            getPersistentData().equals(that.getPersistentData()) &&
-            Objects.equals(getExitStatus(), that.getExitStatus());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getDataKey(), getTempData(), getPersistentData(), getExitStatus());
-    }
-
-    @Override
-    public boolean isDirty() {
-        return modified || (tempData != null && !tempData.isEmpty())
-            || !persistentData.isEmpty() || exitStatus != null;
     }
 
     @SuppressWarnings("NullableProblems")

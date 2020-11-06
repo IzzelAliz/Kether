@@ -9,50 +9,33 @@ public interface QuestContext {
 
     String BASE_BLOCK = "main";
 
-    String BASE_DATA_KEY = "default";
-
-    QuestService<?> getService();
+    QuestService<? extends QuestContext> getService();
 
     Quest getQuest();
 
     String getPlayerIdentifier();
 
-    String getRunningBlock();
+    Quest.Block getBlockRunning();
 
-    int getIndex();
+    void setBlock(Quest.Block block);
 
     void setExitStatus(ExitStatus exitStatus);
 
     Optional<ExitStatus> getExitStatus();
 
-    void setJump(String block, int index);
+    QuestContext createChild();
 
-    <C extends QuestContext> C createChild(String key, boolean anonymous);
-
-    CompletableFuture<Void> runActions();
+    CompletableFuture<Object> runActions();
 
     Executor getExecutor();
 
-    void setDataKey(String key);
+    <T> CompletableFuture<T> runAction(QuestAction<T> action);
 
-    String getDataKey();
+    Map<String, Object> locals();
 
-    <T, C extends QuestContext> CompletableFuture<T> runAction(String key, QuestAction<T, C> action);
+    void putLocal(String key, Object value);
 
-    /**
-     * Return a mutable map storing temp data.
-     * <p>
-     * When the action completes its process, all data stored in will be removed.
-     *
-     * @return a mutable map storing temp data
-     */
-    Map<String, Object> getTempData();
-
-    default void setTempData(String key, Object value) {
-        getTempData().put(key, value);
-    }
-
-    Map<String, Object> getPersistentData();
+    <T> T getLocal(String key);
 
     /**
      * The closable will called immediately when action is complete, and(or)
@@ -63,6 +46,4 @@ public interface QuestContext {
     <T extends AutoCloseable> T addClosable(T closeable);
 
     void terminate();
-
-    boolean isDirty();
 }

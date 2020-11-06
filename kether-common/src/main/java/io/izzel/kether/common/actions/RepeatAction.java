@@ -9,53 +9,32 @@ import io.izzel.kether.common.util.Coerce;
 
 import java.util.concurrent.CompletableFuture;
 
-final class RepeatAction<CTX extends QuestContext> implements QuestAction<Void, CTX> {
+final class RepeatAction implements QuestAction<Void> {
 
     private final int time;
-    private final QuestAction<?, CTX> action;
+    private final QuestAction<?> action;
 
-    public RepeatAction(int time, QuestAction<?, CTX> action) {
+    public RepeatAction(int time, QuestAction<?> action) {
         this.time = time;
         this.action = action;
     }
 
     @Override
-    public boolean isAsync() {
-        return action.isAsync();
+    public CompletableFuture<Void> process(QuestContext context) {
+        int cur = Coerce.toInteger(context.getLocal("times"));
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        process(context, future, cur);
+        return future;
     }
 
-    @Override
-    public boolean isPersist() {
-        return true;
-    }
-
-    @Override
-    public CompletableFuture<Void> process(CTX context) {
-        int cur = Coerce.toInteger(context.getTempData().getOrDefault("time", 0));
-        if (isAsync()) {
-            CompletableFuture<Void> future = new CompletableFuture<>();
-            process(context, future, cur);
-            return future;
-        } else {
-            for (int i = cur; i < time; i++) {
-                context.runAction("repeat", action).join();
-            }
-            return CompletableFuture.completedFuture(null);
-        }
-    }
-
-    @Override
-    public String getDataPrefix() {
-        return "repeat";
-    }
-
-    private void process(CTX context, CompletableFuture<Void> future, int cur) {
+    private void process(QuestContext context, CompletableFuture<Void> future, int cur) {
         if (cur < time) {
-            context.runAction("repeat", action).thenRunAsync(() -> {
-                context.setTempData("time", cur + 1);
+            context.runAction(action).thenRunAsync(() -> {
+                context.putLocal("times", cur + 1);
                 process(context, future, cur + 1);
             }, context.getExecutor());
         } else {
+            context.putLocal("times", null);
             future.complete(null);
         }
     }
@@ -70,7 +49,7 @@ final class RepeatAction<CTX extends QuestContext> implements QuestAction<Void, 
 
     public static QuestActionParser parser(QuestService<?> service) {
         return QuestActionParser.of(
-            resolver -> new RepeatAction<>(resolver.nextInt(), resolver.nextAction()),
+            resolver -> new RepeatAction(resolver.nextInt(), resolver.nextAction()),
             KetherCompleters.seq(
                 KetherCompleters.consume(),
                 KetherCompleters.action(service)

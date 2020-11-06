@@ -4,14 +4,13 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
-import io.izzel.kether.common.QuestLoader;
+import io.izzel.kether.common.loader.QuestLoader;
 import io.izzel.kether.common.api.DefaultRegistry;
 import io.izzel.kether.common.api.ExitStatus;
 import io.izzel.kether.common.api.Quest;
 import io.izzel.kether.common.api.QuestRegistry;
 import io.izzel.kether.common.api.QuestService;
 import io.izzel.kether.common.api.QuestStorage;
-import io.izzel.kether.common.api.SettingsContext;
 import io.izzel.taboolib.module.locale.TLocale;
 import org.bukkit.Bukkit;
 

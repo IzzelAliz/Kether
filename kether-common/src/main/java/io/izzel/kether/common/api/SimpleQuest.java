@@ -43,10 +43,10 @@ public class SimpleQuest implements Quest {
     public static class SimpleBlock implements Block {
 
         private final String label;
-        private final List<QuestAction<?, QuestContext>> actions;
+        private final List<QuestAction<?>> actions;
 
         @SuppressWarnings({"unchecked", "rawtypes"})
-        public <CTX extends QuestContext> SimpleBlock(String label, List<QuestAction<?, CTX>> actions) {
+        public <CTX extends QuestContext> SimpleBlock(String label, List<QuestAction<?>> actions) {
             this.label = label;
             this.actions = (List) actions;
         }
@@ -56,10 +56,19 @@ public class SimpleQuest implements Quest {
             return label;
         }
 
-        @SuppressWarnings({"unchecked", "rawtypes"})
         @Override
-        public <C extends QuestContext> List<QuestAction<?, C>> getActions() {
-            return (List) actions;
+        public List<QuestAction<?>> getActions() {
+            return this.actions;
+        }
+
+        @Override
+        public Optional<QuestAction<?>> findAction(int address) {
+            return Optional.empty();
+        }
+
+        @Override
+        public int getAddress(QuestAction<?> action) {
+            return 0;
         }
 
         @Override

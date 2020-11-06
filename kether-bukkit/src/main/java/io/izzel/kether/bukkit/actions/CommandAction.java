@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 
 import java.util.concurrent.CompletableFuture;
 
-final class CommandAction implements QuestAction<Boolean, BukkitQuestContext> {
+final class CommandAction implements QuestAction<Boolean> {
 
     private final ContextString command;
     private final boolean console;
@@ -21,11 +21,6 @@ final class CommandAction implements QuestAction<Boolean, BukkitQuestContext> {
         this.command = command;
         this.console = console;
         this.op = op;
-    }
-
-    @Override
-    public boolean isAsync() {
-        return false;
     }
 
     @Override
@@ -49,11 +44,6 @@ final class CommandAction implements QuestAction<Boolean, BukkitQuestContext> {
             }
             return future;
         }
-    }
-
-    @Override
-    public String getDataPrefix() {
-        return "command";
     }
 
     @Override
