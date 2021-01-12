@@ -2,11 +2,11 @@ package io.izzel.kether.common.api;
 
 import java.util.concurrent.CompletableFuture;
 
-public interface QuestAction<T> {
+public abstract class QuestAction<T> {
 
-    CompletableFuture<T> process(QuestContext context);
+    protected abstract CompletableFuture<T> process(QuestContext.Frame frame);
 
-    static <T> QuestAction<T> noop() {
+    public static <T> QuestAction<T> noop() {
         return new QuestAction<T>() {
 
             @Override

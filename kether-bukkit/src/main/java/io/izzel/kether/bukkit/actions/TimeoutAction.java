@@ -10,7 +10,7 @@ import org.bukkit.Bukkit;
 
 import java.util.concurrent.CompletableFuture;
 
-final class TimeoutAction implements QuestAction<Void> {
+final class TimeoutAction extends QuestAction<Void> {
 
     private final long ticks;
 

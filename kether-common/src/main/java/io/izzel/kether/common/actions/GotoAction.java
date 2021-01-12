@@ -7,7 +7,7 @@ import io.izzel.kether.common.api.QuestContext;
 
 import java.util.concurrent.CompletableFuture;
 
-final class GotoAction implements QuestAction<Void> {
+final class GotoAction extends QuestAction<Void> {
 
     private final String block;
 

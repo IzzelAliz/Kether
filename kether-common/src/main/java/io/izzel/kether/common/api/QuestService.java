@@ -5,6 +5,7 @@ import com.google.common.collect.Multimap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.ServiceLoader;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -33,4 +34,15 @@ public interface QuestService<CTX extends QuestContext> {
     String getLocalizedText(String node, Object... params);
 
     QuestStorage getStorage();
+
+    @SuppressWarnings("unchecked")
+    static <C extends QuestContext> QuestService<C> instance() {
+        return (QuestService<C>) ServiceHolder.INSTANCE;
+    }
+}
+
+class ServiceHolder {
+
+    static final QuestService<?> INSTANCE =
+        ServiceLoader.load(QuestService.class, ServiceHolder.class.getClassLoader()).iterator().next();
 }

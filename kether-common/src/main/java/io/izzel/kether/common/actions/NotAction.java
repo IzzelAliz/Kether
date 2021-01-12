@@ -9,7 +9,7 @@ import io.izzel.kether.common.util.Coerce;
 
 import java.util.concurrent.CompletableFuture;
 
-final class NotAction implements QuestAction<Boolean> {
+final class NotAction extends QuestAction<Boolean> {
 
     private final QuestAction<?> action;
 

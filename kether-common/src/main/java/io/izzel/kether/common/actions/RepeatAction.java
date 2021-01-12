@@ -9,7 +9,7 @@ import io.izzel.kether.common.util.Coerce;
 
 import java.util.concurrent.CompletableFuture;
 
-final class RepeatAction implements QuestAction<Void> {
+final class RepeatAction extends QuestAction<Void> {
 
     private final int time;
     private final QuestAction<?> action;

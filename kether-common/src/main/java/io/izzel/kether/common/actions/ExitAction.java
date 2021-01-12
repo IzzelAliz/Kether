@@ -9,7 +9,7 @@ import io.izzel.kether.common.util.LocalizedException;
 
 import java.util.concurrent.CompletableFuture;
 
-final class ExitAction implements QuestAction<Void> {
+final class ExitAction extends QuestAction<Void> {
 
     private final boolean running;
     private final boolean waiting;

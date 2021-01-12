@@ -9,7 +9,7 @@ import io.izzel.kether.common.api.QuestService;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-final class AwaitAnyAction implements QuestAction<Object> {
+final class AwaitAnyAction extends QuestAction<Object> {
 
     private final List<QuestAction<?>> actions;
 

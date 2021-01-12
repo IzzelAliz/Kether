@@ -9,7 +9,7 @@ import io.izzel.kether.common.util.Coerce;
 
 import java.util.concurrent.CompletableFuture;
 
-final class IfAction<U> implements QuestAction<U> {
+final class IfAction<U> extends QuestAction<U> {
 
     private final QuestAction<?> condition;
     private final QuestAction<U> trueAction;

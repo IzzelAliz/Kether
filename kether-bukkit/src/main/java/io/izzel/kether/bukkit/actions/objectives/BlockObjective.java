@@ -14,7 +14,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 import java.util.concurrent.CompletableFuture;
 
-public abstract class BlockObjective implements QuestAction<Void> {
+public abstract class BlockObjective extends QuestAction<Void> {
 
     public static QuestActionParser blockBreak() {
         return QuestActionParser.<Void, BukkitQuestContext>of(

@@ -12,7 +12,7 @@ import org.bukkit.entity.Player;
 
 import java.util.concurrent.CompletableFuture;
 
-final class MessageAction implements QuestAction<Void> {
+final class MessageAction extends QuestAction<Void> {
 
     private final ContextString message;
     private final long timeoutTicks;

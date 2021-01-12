@@ -1,72 +1,43 @@
 package io.izzel.kether.common.api;
 
+import com.google.common.base.Preconditions;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class AbstractQuestContext<This extends AbstractQuestContext<This>> implements QuestContext {
 
     protected final QuestService<This> service;
-    protected final Map<Integer, QuestContext> owningContexts = new HashMap<>();
-    protected final AtomicInteger contextCounter = new AtomicInteger(0);
+    protected final Frame rootFrame;
+    private final Quest quest;
+    private final String playerIdentifier;
     private final QuestExecutor executor;
-    protected This owner;
-    private Quest quest;
-    private String playerIdentifier;
-    protected Quest.Block block;
-    protected int index = 0;
-    protected Map<String, Object> locals;
     protected ExitStatus exitStatus;
-    private CompletableFuture<Object> completeFuture;
 
-    protected Deque<AutoCloseable> closeables = new LinkedBlockingDeque<>();
-
-    @SuppressWarnings("unchecked")
-    protected AbstractQuestContext(QuestService<This> service) {
+    protected AbstractQuestContext(QuestService<This> service, Frame rootFrame, Quest quest, String playerIdentifier) {
         this.service = service;
-        this.owner = (This) this;
+        this.rootFrame = rootFrame;
+        this.quest = quest;
+        this.playerIdentifier = playerIdentifier;
         this.executor = new QuestExecutor();
     }
 
     protected abstract Executor createExecutor();
 
-    public abstract This createChild();
-
-    protected void copy(This from) {
-        this.owner = from.owner;
-        this.quest = from.getQuest();
-        this.playerIdentifier = from.getPlayerIdentifier();
-        this.block = from.block;
-        this.index = from.index;
-        this.locals = from.locals;
-        this.exitStatus = from.exitStatus;
-        owner.owningContexts.put(owner.contextCounter.getAndIncrement(), this);
-    }
-
     @Override
     public void terminate() {
-        for (QuestContext context : this.owningContexts.values()) {
-            context.terminate();
-        }
-        this.cleanup();
-        if (completeFuture != null && !completeFuture.isDone()) {
-            completeFuture.complete(null);
-        }
-    }
-
-    private void cleanup() {
-        while (!closeables.isEmpty()) {
-            try {
-                closeables.pollFirst().close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        this.rootFrame.close();
     }
 
     public QuestService<This> getService() {
@@ -84,26 +55,8 @@ public abstract class AbstractQuestContext<This extends AbstractQuestContext<Thi
     }
 
     @Override
-    public Quest.Block getBlockRunning() {
-        return block;
-    }
-
-    public void setBlock(Quest.Block block) {
-        this.block = block;
-        this.index = 0;
-    }
-
-    @Override
     public void setExitStatus(ExitStatus exitStatus) {
-        if (exitStatus == null) {
-            this.exitStatus = null;
-        } else if (this.exitStatus == null) {
-            this.exitStatus = exitStatus;
-            if (this.owner.exitStatus == null) {
-                this.owner.exitStatus = this.exitStatus;
-            }
-            this.owner.terminate();
-        }
+        this.exitStatus = exitStatus;
     }
 
     @Override
@@ -118,74 +71,12 @@ public abstract class AbstractQuestContext<This extends AbstractQuestContext<Thi
 
     @Override
     public CompletableFuture<Object> runActions() {
-        if (completeFuture == null) {
-            completeFuture = new CompletableFuture<>();
-            process(null);
-            return completeFuture;
-        } else {
-            throw new IllegalStateException("rerun context");
-        }
-    }
-
-    private Optional<? extends QuestAction<?>> nextAction() {
-        Optional<? extends QuestAction<?>> optional =
-            this.index < this.block.getActions().size() ? Optional.of(this.block.getActions().get(this.index)) : Optional.empty();
-        this.index++;
-        return optional;
-    }
-
-    private void process(CompletableFuture<?> future) {
-        while (exitStatus == null) {
-            Optional<? extends QuestAction<?>> optional = nextAction();
-            if (optional.isPresent()) {
-                QuestAction<?> action = optional.get();
-                CompletableFuture<?> newFuture = this.runAction(action);
-                if (!newFuture.isDone()) {
-                    newFuture.thenRunAsync(() -> this.process(newFuture), this.getExecutor());
-                    return;
-                } else {
-                    future = newFuture;
-                }
-            } else {
-                if (exitStatus == null) {
-                    this.exitStatus = ExitStatus.success();
-                }
-                this.completeFuture.complete(future != null && future.isDone() ? future.join() : null);
-                this.terminate();
-                return;
+        return rootFrame.run().thenApply(o -> {
+            if (this.exitStatus == null) {
+                this.exitStatus = ExitStatus.success();
             }
-        }
-    }
-
-    @Override
-    public <T> CompletableFuture<T> runAction(QuestAction<T> action) {
-        CompletableFuture<T> future = action.process(this);
-        return future.thenApplyAsync(t -> {
-            this.cleanup();
-            return t;
-        }, getExecutor());
-    }
-
-    @Override
-    public Map<String, Object> locals() {
-        return this.locals;
-    }
-
-    @Override
-    public void putLocal(String key, Object value) {
-        this.locals.put(key, value);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T> T getLocal(String key) {
-        return (T) this.locals.get(key);
-    }
-
-    @Override
-    public <T extends AutoCloseable> T addClosable(T closeable) {
-        this.closeables.addFirst(closeable);
-        return closeable;
+            return o;
+        });
     }
 
     @SuppressWarnings("NullableProblems")
@@ -195,8 +86,288 @@ public abstract class AbstractQuestContext<This extends AbstractQuestContext<Thi
 
         @Override
         public void execute(Runnable command) {
-            if (!getExitStatus().isPresent()) {
+            if (exitStatus != null) {
                 actual.execute(command);
+            }
+        }
+    }
+
+    protected abstract class AbstractFrame implements Frame {
+
+        protected final Frame parent;
+        protected final List<Frame> frames;
+        protected final VarTable varTable;
+        protected CompletableFuture<?> future;
+        protected Deque<AutoCloseable> closeables = new LinkedBlockingDeque<>();
+
+        public AbstractFrame(Frame parent, List<Frame> frames, VarTable varTable) {
+            this.parent = parent;
+            this.frames = frames;
+            this.varTable = varTable;
+        }
+
+        @Override
+        public QuestContext context() {
+            return AbstractQuestContext.this;
+        }
+
+        @Override
+        public List<Frame> children() {
+            return this.frames;
+        }
+
+        @Override
+        public Optional<Frame> parent() {
+            return Optional.ofNullable(parent);
+        }
+
+        @Override
+        public Frame newFrame(String name) {
+            return new SimpleNamedFrame(this, new ArrayList<>(), new SimpleVarTable(this), name);
+        }
+
+        @Override
+        public Frame newFrame(QuestAction<?> action) {
+            return new SimpleActionFrame(this, new ArrayList<>(), new SimpleVarTable(this), action);
+        }
+
+        @Override
+        public VarTable variables() {
+            return this.varTable;
+        }
+
+        @Override
+        public <T extends AutoCloseable> T addClosable(T closeable) {
+            this.closeables.addFirst(closeable);
+            return closeable;
+        }
+
+        @Override
+        public void close() {
+            if (this.future == null) return;
+            for (Frame frame : this.frames) {
+                frame.close();
+            }
+            this.cleanup();
+            this.future.completeExceptionally(new QuestCloseException());
+            this.future = null;
+        }
+
+        private void cleanup() {
+            while (!closeables.isEmpty()) {
+                try {
+                    closeables.pollFirst().close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+    }
+
+    protected class SimpleNamedFrame extends AbstractFrame {
+
+        private final String name;
+        private Quest.Block block, next;
+        private int sp = -1, np = -1;
+
+        public SimpleNamedFrame(Frame parent, List<Frame> frames, VarTable varTable, String name) {
+            super(parent, frames, varTable);
+            this.name = name;
+        }
+
+        @Override
+        public String name() {
+            return this.name;
+        }
+
+        @Override
+        public Optional<QuestAction<?>> currentAction() {
+            if (block == null || sp == -1) {
+                return Optional.empty();
+            } else {
+                return block.get(sp);
+            }
+        }
+
+        @Override
+        public void setNext(QuestAction<?> action) {
+            if (block != null) {
+                np = block.indexOf(action);
+                if (np == -1) next = null;
+            }
+            if (next == null) {
+                Optional<Quest.Block> optional = quest.blockOf(action);
+                if (optional.isPresent()) {
+                    next = optional.get();
+                    np = next.indexOf(action);
+                } else {
+                    throw new IllegalArgumentException(action + " is not in quest");
+                }
+            }
+        }
+
+        @Override
+        public void setNext(Quest.Block block) {
+            next = block;
+            np = 0;
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public <T> CompletableFuture<T> run() {
+            Preconditions.checkState(this.future == null, "already running");
+            varTable.initialize(this);
+            future = new CompletableFuture<>();
+            process(future);
+            return (CompletableFuture<T>) future;
+        }
+
+        @SuppressWarnings("unchecked")
+        private void process(CompletableFuture<?> future) {
+            while (exitStatus == null) {
+                Optional<? extends QuestAction<?>> optional = nextAction();
+                if (optional.isPresent()) {
+                    QuestAction<?> action = optional.get();
+                    CompletableFuture<?> newFuture = action.process(this);
+                    if (!newFuture.isDone()) {
+                        newFuture.thenRunAsync(() -> this.process(newFuture), getExecutor());
+                        return;
+                    } else {
+                        future = newFuture;
+                    }
+                } else {
+                    ((CompletableFuture<Object>) this.future).complete(future != null && future.isDone() ? future.join() : null);
+                    return;
+                }
+            }
+        }
+
+        private Optional<? extends QuestAction<?>> nextAction() {
+            if (next != null && np != -1) {
+                return (block = next).get(sp = np++);
+            } else return Optional.empty();
+        }
+    }
+
+    protected class SimpleActionFrame extends AbstractFrame {
+
+        protected final QuestAction<?> action;
+
+        public SimpleActionFrame(Frame parent, List<Frame> frames, VarTable varTable, QuestAction<?> action) {
+            super(parent, frames, varTable);
+            this.action = action;
+        }
+
+        @Override
+        public String name() {
+            return this.action.toString();
+        }
+
+        @Override
+        public Optional<QuestAction<?>> currentAction() {
+            return Optional.of(action);
+        }
+
+        @Override
+        public void setNext(QuestAction<?> action) {
+            if (this.parent != null) {
+                this.parent.setNext(action);
+            }
+        }
+
+        @Override
+        public void setNext(Quest.Block block) {
+            if (this.parent != null) {
+                this.parent.setNext(block);
+            }
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public <T> CompletableFuture<T> run() {
+            Preconditions.checkState(this.future == null, "already running");
+            this.varTable.initialize(this);
+            return (CompletableFuture<T>) (this.future = this.action.process(this));
+        }
+    }
+
+    protected static class SimpleVarTable implements VarTable {
+
+        private final Frame parent;
+        private final Map<String, Object> map;
+
+        public SimpleVarTable(Frame parent) {
+            this(parent, new HashMap<>());
+        }
+
+        public SimpleVarTable(Frame parent, Map<String, Object> map) {
+            this.parent = parent;
+            this.map = map;
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public <T> Optional<T> get(String name) throws CompletionException {
+            Object o = map.get(name);
+            if (o == null && parent != null) {
+                return parent.variables().get(name);
+            }
+            if (o instanceof QuestFuture<?>) {
+                o = ((QuestFuture<?>) o).getFuture().join();
+            }
+            return (Optional<T>) Optional.ofNullable(o);
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public <T> Optional<QuestFuture<T>> getFuture(String name) {
+            Object o = map.get(name);
+            if (o == null && parent != null) {
+                return parent.variables().getFuture(name);
+            }
+            if (o instanceof QuestFuture) {
+                return Optional.of((QuestFuture<T>) o);
+            } else {
+                return Optional.empty();
+            }
+        }
+
+        @Override
+        public void set(String name, Object value) {
+            this.map.put(name, value);
+        }
+
+        @Override
+        public <T> void set(String name, QuestAction<T> owner, CompletableFuture<T> future) {
+            this.map.put(name, new QuestFuture<>(owner, future));
+        }
+
+        @Override
+        public Set<String> keys() {
+            return Collections.unmodifiableSet(this.map.keySet());
+        }
+
+        @Override
+        public Collection<Map.Entry<String, Object>> values() {
+            return Collections.unmodifiableCollection(this.map.entrySet());
+        }
+
+        @Override
+        public void initialize(Frame frame) {
+            for (Object o : this.map.values()) {
+                if (o instanceof QuestFuture) {
+                    ((QuestFuture<?>) o).run(frame);
+                }
+            }
+        }
+
+        @Override
+        public void close() {
+            for (Object o : this.map.values()) {
+                if (o instanceof QuestFuture) {
+                    ((QuestFuture<?>) o).close();
+                }
             }
         }
     }

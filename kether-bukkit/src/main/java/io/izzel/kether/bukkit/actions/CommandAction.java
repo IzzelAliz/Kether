@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 
 import java.util.concurrent.CompletableFuture;
 
-final class CommandAction implements QuestAction<Boolean> {
+final class CommandAction extends QuestAction<Boolean> {
 
     private final ContextString command;
     private final boolean console;

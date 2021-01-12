@@ -8,7 +8,7 @@ import io.izzel.kether.common.api.QuestContext;
 
 import java.util.concurrent.CompletableFuture;
 
-final class CallAction implements QuestAction<Object> {
+final class CallAction extends QuestAction<Object> {
 
     private final String block;
 

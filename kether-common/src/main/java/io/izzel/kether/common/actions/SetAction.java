@@ -7,7 +7,7 @@ import io.izzel.kether.common.api.QuestContext;
 
 import java.util.concurrent.CompletableFuture;
 
-final class SetAction implements QuestAction<Void> {
+final class SetAction extends QuestAction<Void> {
 
     private final String key;
     private final String value;

@@ -10,7 +10,7 @@ import io.izzel.kether.common.util.Coerce;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-final class AnyAction implements QuestAction<Boolean> {
+final class AnyAction extends QuestAction<Boolean> {
 
     private final List<QuestAction<?>> actions;
 

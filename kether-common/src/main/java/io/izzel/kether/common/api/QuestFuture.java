@@ -1,17 +1,21 @@
 package io.izzel.kether.common.api;
 
+import com.google.common.base.Preconditions;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 public class QuestFuture<T> {
 
     private final QuestAction<T> action;
-    private final int address;
-    private final CompletableFuture<T> future;
+    private CompletableFuture<T> future;
 
-    public QuestFuture(QuestAction<T> action, int address, CompletableFuture<T> future) {
+    public QuestFuture(QuestAction<T> action) {
+        this(action, null);
+    }
+
+    public QuestFuture(QuestAction<T> action, CompletableFuture<T> future) {
         this.action = action;
-        this.address = address;
         this.future = future;
     }
 
@@ -19,17 +23,19 @@ public class QuestFuture<T> {
         return action;
     }
 
-    public int getAddress() {
-        return address;
-    }
-
     public CompletableFuture<T> getFuture() {
         return future;
     }
 
-    public static <T> QuestFuture<T> of(QuestContext context, QuestAction<T> action, CompletableFuture<T> future) {
-        int address = context.getBlockRunning().getAddress(action);
-        return new QuestFuture<>(action, address, future);
+    public void run(QuestContext.Frame frame) {
+        Preconditions.checkState(this.future == null, "already running");
+        this.future = frame.newFrame(this.action).run();
+    }
+
+    public void close() {
+        Preconditions.checkState(this.future != null, "not running");
+        this.future.completeExceptionally(new QuestCloseException());
+        this.future = null;
     }
 
     @SuppressWarnings("unchecked")

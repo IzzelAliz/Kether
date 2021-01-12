@@ -13,6 +13,6 @@ public abstract class PersistentQuestContext<This extends PersistentQuestContext
 
     protected void copy(This from) {
         super.copy(from);
-    }
 
+    }
 }
