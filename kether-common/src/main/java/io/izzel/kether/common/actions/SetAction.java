@@ -18,11 +18,11 @@ final class SetAction extends QuestAction<Void> {
     }
 
     @Override
-    public CompletableFuture<Void> process(QuestContext context) {
+    public CompletableFuture<Void> process(QuestContext.Frame frame) {
         if (value == null || value.equals("null")) {
-            context.putLocal(key, null);
+            frame.variables().set(key, null);
         } else {
-            context.putLocal(key, value);
+            frame.variables().set(key, value);
         }
         return CompletableFuture.completedFuture(null);
     }

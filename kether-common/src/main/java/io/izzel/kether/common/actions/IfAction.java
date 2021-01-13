@@ -22,15 +22,15 @@ final class IfAction<U> extends QuestAction<U> {
     }
 
     @Override
-    public CompletableFuture<U> process(QuestContext context) {
+    public CompletableFuture<U> process(QuestContext.Frame frame) {
         CompletableFuture<U> future = new CompletableFuture<>();
-        context.runAction(condition).thenAcceptAsync(t -> {
+        frame.newFrame(condition).run().thenAccept(t -> {
             if (Coerce.toBoolean(t)) {
-                context.runAction(trueAction).thenAccept(future::complete);
+                frame.newFrame(trueAction).<U>run().thenAccept(future::complete);
             } else {
-                context.runAction(falseAction).thenAccept(future::complete);
+                frame.newFrame(falseAction).<U>run().thenAccept(future::complete);
             }
-        }, context.getExecutor());
+        });
         return future;
     }
 

@@ -1,4 +1,6 @@
-package io.izzel.kether.common.api;
+package io.izzel.kether.common.api.data;
+
+import io.izzel.kether.common.api.QuestContext;
 
 import java.util.Map;
 import java.util.function.BiFunction;

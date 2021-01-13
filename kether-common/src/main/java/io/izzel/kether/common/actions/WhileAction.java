@@ -20,23 +20,23 @@ final class WhileAction extends QuestAction<Void> {
     }
 
     @Override
-    public CompletableFuture<Void> process(QuestContext context) {
+    public CompletableFuture<Void> process(QuestContext.Frame frame) {
         CompletableFuture<Void> future = new CompletableFuture<>();
-        process(context, future);
+        process(frame, future);
         return future;
     }
 
-    private void process(QuestContext context, CompletableFuture<Void> future) {
-        context.runAction(condition).thenAcceptAsync(t -> {
+    private void process(QuestContext.Frame frame, CompletableFuture<Void> future) {
+        frame.newFrame(action).run().thenAcceptAsync(t -> {
             if (Coerce.toBoolean(t)) {
-                context.runAction(action).thenRunAsync(
-                    () -> process(context, future),
-                    context.getExecutor()
+                frame.newFrame(action).run().thenRunAsync(
+                    () -> process(frame, future),
+                    frame.context().getExecutor()
                 );
             } else {
                 future.complete(null);
             }
-        }, context.getExecutor());
+        }, frame.context().getExecutor());
     }
 
     @Override

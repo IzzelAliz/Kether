@@ -1,6 +1,8 @@
-package io.izzel.kether.common.api;
+package io.izzel.kether.common.api.data;
 
 import com.google.common.base.Preconditions;
+import io.izzel.kether.common.api.QuestAction;
+import io.izzel.kether.common.api.QuestContext;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
@@ -34,7 +36,6 @@ public class QuestFuture<T> {
 
     public void close() {
         Preconditions.checkState(this.future != null, "not running");
-        this.future.completeExceptionally(new QuestCloseException());
         this.future = null;
     }
 

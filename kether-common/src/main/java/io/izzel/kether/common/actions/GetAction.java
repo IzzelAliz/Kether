@@ -16,8 +16,8 @@ public class GetAction extends QuestAction<Object> {
     }
 
     @Override
-    public CompletableFuture<Object> process(QuestContext context) {
-        return CompletableFuture.completedFuture(context.getLocal(key));
+    public CompletableFuture<Object> process(QuestContext.Frame frame) {
+        return CompletableFuture.completedFuture(frame.variables().get(key));
     }
 
     public static QuestActionParser parser() {

@@ -6,7 +6,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
 import io.izzel.kether.common.loader.QuestLoader;
 import io.izzel.kether.common.api.DefaultRegistry;
-import io.izzel.kether.common.api.ExitStatus;
+import io.izzel.kether.common.api.data.ExitStatus;
 import io.izzel.kether.common.api.Quest;
 import io.izzel.kether.common.api.QuestRegistry;
 import io.izzel.kether.common.api.QuestService;

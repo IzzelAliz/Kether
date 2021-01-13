@@ -1,12 +1,14 @@
 package io.izzel.kether.common.api;
 
 import com.google.common.base.Preconditions;
+import io.izzel.kether.common.api.data.ExitStatus;
+import io.izzel.kether.common.api.data.QuestFuture;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -24,21 +26,22 @@ public abstract class AbstractQuestContext<This extends AbstractQuestContext<Thi
     private final String playerIdentifier;
     private final QuestExecutor executor;
     protected ExitStatus exitStatus;
+    protected CompletableFuture<Object> future;
 
-    protected AbstractQuestContext(QuestService<This> service, Frame rootFrame, Quest quest, String playerIdentifier) {
+    protected AbstractQuestContext(QuestService<This> service, Quest quest, String playerIdentifier) {
+        this(service, quest, playerIdentifier, null)
+    }
+
+    protected AbstractQuestContext(QuestService<This> service, Quest quest, String playerIdentifier, Frame rootFrame) {
         this.service = service;
-        this.rootFrame = rootFrame;
         this.quest = quest;
         this.playerIdentifier = playerIdentifier;
+        this.rootFrame = rootFrame != null ? rootFrame :
+            new SimpleNamedFrame(null, new LinkedList<>(), new SimpleVarTable(null), QuestContext.BASE_BLOCK);
         this.executor = new QuestExecutor();
     }
 
     protected abstract Executor createExecutor();
-
-    @Override
-    public void terminate() {
-        this.rootFrame.close();
-    }
 
     public QuestService<This> getService() {
         return service;
@@ -70,13 +73,28 @@ public abstract class AbstractQuestContext<This extends AbstractQuestContext<Thi
     }
 
     @Override
+    public Frame rootFrame() {
+        return rootFrame;
+    }
+
+    @Override
     public CompletableFuture<Object> runActions() {
-        return rootFrame.run().thenApply(o -> {
+        Preconditions.checkState(future == null, "already running");
+        return future = rootFrame.run().thenApply(o -> {
             if (this.exitStatus == null) {
                 this.exitStatus = ExitStatus.success();
             }
             return o;
         });
+    }
+
+    @Override
+    public void terminate() {
+        this.rootFrame.close();
+        if (future != null) {
+            future.completeExceptionally(new QuestCloseException());
+            future = null;
+        }
     }
 
     @SuppressWarnings("NullableProblems")
@@ -123,12 +141,16 @@ public abstract class AbstractQuestContext<This extends AbstractQuestContext<Thi
 
         @Override
         public Frame newFrame(String name) {
-            return new SimpleNamedFrame(this, new ArrayList<>(), new SimpleVarTable(this), name);
+            SimpleNamedFrame frame = new SimpleNamedFrame(this, new LinkedList<>(), new SimpleVarTable(this), name);
+            this.frames.add(frame);
+            return frame;
         }
 
         @Override
         public Frame newFrame(QuestAction<?> action) {
-            return new SimpleActionFrame(this, new ArrayList<>(), new SimpleVarTable(this), action);
+            SimpleActionFrame frame = new SimpleActionFrame(this, new LinkedList<>(), new SimpleVarTable(this), action);
+            this.frames.add(frame);
+            return frame;
         }
 
         @Override
@@ -149,11 +171,10 @@ public abstract class AbstractQuestContext<This extends AbstractQuestContext<Thi
                 frame.close();
             }
             this.cleanup();
-            this.future.completeExceptionally(new QuestCloseException());
             this.future = null;
         }
 
-        private void cleanup() {
+        void cleanup() {
             while (!closeables.isEmpty()) {
                 try {
                     closeables.pollFirst().close();
@@ -162,7 +183,6 @@ public abstract class AbstractQuestContext<This extends AbstractQuestContext<Thi
                 }
             }
         }
-
     }
 
     protected class SimpleNamedFrame extends AbstractFrame {
@@ -226,6 +246,7 @@ public abstract class AbstractQuestContext<This extends AbstractQuestContext<Thi
         @SuppressWarnings("unchecked")
         private void process(CompletableFuture<?> future) {
             while (exitStatus == null) {
+                this.cleanup();
                 Optional<? extends QuestAction<?>> optional = nextAction();
                 if (optional.isPresent()) {
                     QuestAction<?> action = optional.get();

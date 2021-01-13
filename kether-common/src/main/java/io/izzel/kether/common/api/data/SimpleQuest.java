@@ -1,6 +1,8 @@
-package io.izzel.kether.common.api;
+package io.izzel.kether.common.api.data;
 
 import com.google.common.collect.Maps;
+import io.izzel.kether.common.api.Quest;
+import io.izzel.kether.common.api.QuestAction;
 
 import java.util.Collections;
 import java.util.List;
@@ -33,6 +35,24 @@ public class SimpleQuest implements Quest {
     }
 
     @Override
+    public Optional<Block> blockOf(QuestAction<?> action) {
+        if (action instanceof IndexedAction) {
+            if (((IndexedAction<?>) action).getQuest() == this) {
+                return Optional.of(((IndexedAction<?>) action).getBlock());
+            } else {
+                return Optional.empty();
+            }
+        } else {
+            for (Block block : map.values()) {
+                if (block.getActions().contains(action)) {
+                    return Optional.of(block);
+                }
+            }
+            return Optional.empty();
+        }
+    }
+
+    @Override
     public String toString() {
         return "SimpleQuest{" +
             "id='" + id + '\'' +
@@ -45,10 +65,9 @@ public class SimpleQuest implements Quest {
         private final String label;
         private final List<QuestAction<?>> actions;
 
-        @SuppressWarnings({"unchecked", "rawtypes"})
-        public <CTX extends QuestContext> SimpleBlock(String label, List<QuestAction<?>> actions) {
+        public SimpleBlock(String label, List<QuestAction<?>> actions) {
             this.label = label;
-            this.actions = (List) actions;
+            this.actions = actions;
         }
 
         @Override
@@ -62,13 +81,25 @@ public class SimpleQuest implements Quest {
         }
 
         @Override
-        public Optional<QuestAction<?>> findAction(int address) {
-            return Optional.empty();
+        public int indexOf(QuestAction<?> action) {
+            if (action instanceof IndexedAction) {
+                if (((IndexedAction<?>) action).getBlock() == this) {
+                    return ((IndexedAction<?>) action).getIndex();
+                } else {
+                    return -1;
+                }
+            } else {
+                return actions.indexOf(action);
+            }
         }
 
         @Override
-        public int getAddress(QuestAction<?> action) {
-            return 0;
+        public Optional<QuestAction<?>> get(int i) {
+            if (i >= 0 && i < actions.size()) {
+                return Optional.of(actions.get(i));
+            } else {
+                return Optional.empty();
+            }
         }
 
         @Override

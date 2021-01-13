@@ -1,7 +1,7 @@
 package io.izzel.kether.bukkit;
 
 import com.google.common.collect.ImmutableList;
-import io.izzel.kether.common.api.ExitStatus;
+import io.izzel.kether.common.api.data.ExitStatus;
 import io.izzel.kether.common.api.Quest;
 import io.izzel.kether.common.api.QuestContext;
 import io.izzel.kether.common.util.Coerce;

@@ -8,7 +8,7 @@ import io.izzel.kether.common.api.QuestAction;
 import io.izzel.kether.common.api.QuestContext;
 import io.izzel.kether.common.api.QuestResolver;
 import io.izzel.kether.common.api.QuestService;
-import io.izzel.kether.common.api.SimpleQuest;
+import io.izzel.kether.common.api.data.SimpleQuest;
 import io.izzel.kether.common.util.LocalizedException;
 
 import java.io.File;

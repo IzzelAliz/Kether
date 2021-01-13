@@ -20,16 +20,16 @@ final class RepeatAction extends QuestAction<Void> {
     }
 
     @Override
-    public CompletableFuture<Void> process(QuestContext context) {
-        int cur = Coerce.toInteger(context.getLocal("times"));
+    public CompletableFuture<Void> process(QuestContext.Frame frame) {
+        int cur = Coerce.toInteger(frame.variables().get("times").orElse(0));
         CompletableFuture<Void> future = new CompletableFuture<>();
-        process(context, future, cur);
+        process(frame, future, cur);
         return future;
     }
 
-    private void process(QuestContext context, CompletableFuture<Void> future, int cur) {
+    private void process(QuestContext.Frame frame, CompletableFuture<Void> future, int cur) {
         if (cur < time) {
-            context.runAction(action).thenRunAsync(() -> {
+            frame.newFrame(action).thenRunAsync(() -> {
                 context.putLocal("times", cur + 1);
                 process(context, future, cur + 1);
             }, context.getExecutor());

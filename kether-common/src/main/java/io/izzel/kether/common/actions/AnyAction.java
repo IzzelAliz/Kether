@@ -19,10 +19,10 @@ final class AnyAction extends QuestAction<Boolean> {
     }
 
     @Override
-    public CompletableFuture<Boolean> process(QuestContext context) {
+    public CompletableFuture<Boolean> process(QuestContext.Frame frame) {
         CompletableFuture<Boolean> future = CompletableFuture.completedFuture(false);
         for (QuestAction<?> action : actions) {
-            CompletableFuture<?> f = context.runAction(action);
+            CompletableFuture<?> f = frame.newFrame(action).run();
             future = future.thenCombine(f, (b, o) -> b || Coerce.toBoolean(o));
         }
         return future;

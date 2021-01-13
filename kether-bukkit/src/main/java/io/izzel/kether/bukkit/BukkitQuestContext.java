@@ -1,7 +1,7 @@
 package io.izzel.kether.bukkit;
 
 import io.izzel.kether.common.api.AbstractQuestContext;
-import io.izzel.kether.common.api.ExitStatus;
+import io.izzel.kether.common.api.data.ExitStatus;
 import io.izzel.kether.common.api.KetherSerializer;
 import io.izzel.kether.common.api.persistent.PersistentQuestContext;
 import io.izzel.kether.common.api.Quest;

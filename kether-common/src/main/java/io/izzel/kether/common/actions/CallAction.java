@@ -1,7 +1,6 @@
 package io.izzel.kether.common.actions;
 
 import io.izzel.kether.common.api.KetherCompleters;
-import io.izzel.kether.common.api.Quest;
 import io.izzel.kether.common.api.QuestAction;
 import io.izzel.kether.common.api.QuestActionParser;
 import io.izzel.kether.common.api.QuestContext;
@@ -17,12 +16,11 @@ final class CallAction extends QuestAction<Object> {
     }
 
     @Override
-    public CompletableFuture<Object> process(QuestContext context) {
-        QuestContext child = context.createChild();
-        Quest.Block block = child.getQuest().getBlocks().get(this.block);
-        child.setBlock(block);
-        context.addClosable(child::terminate);
-        return child.runActions();
+    public CompletableFuture<Object> process(QuestContext.Frame frame) {
+        QuestContext.Frame newFrame = frame.newFrame(block);
+        newFrame.setNext(frame.context().getQuest().getBlocks().get(block));
+        frame.addClosable(newFrame::close);
+        return newFrame.run();
     }
 
     @Override

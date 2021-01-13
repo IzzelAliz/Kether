@@ -4,13 +4,16 @@ import java.util.concurrent.CompletableFuture;
 
 public abstract class QuestAction<T> {
 
-    protected abstract CompletableFuture<T> process(QuestContext.Frame frame);
+    /**
+     * This should not be called directly, see {@link io.izzel.kether.common.api.QuestContext.Frame#newFrame(QuestAction)}
+     */
+    public abstract CompletableFuture<T> process(QuestContext.Frame frame);
 
     public static <T> QuestAction<T> noop() {
         return new QuestAction<T>() {
 
             @Override
-            public CompletableFuture<T> process(QuestContext context) {
+            public CompletableFuture<T> process(QuestContext.Frame frame) {
                 return CompletableFuture.completedFuture(null);
             }
 

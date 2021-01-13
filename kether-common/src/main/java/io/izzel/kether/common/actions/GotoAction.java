@@ -16,8 +16,8 @@ final class GotoAction extends QuestAction<Void> {
     }
 
     @Override
-    public CompletableFuture<Void> process(QuestContext context) {
-        context.setBlock(context.getQuest().getBlocks().get(block));
+    public CompletableFuture<Void> process(QuestContext.Frame frame) {
+        frame.setNext(frame.context().getQuest().getBlocks().get(block));
         return CompletableFuture.completedFuture(null);
     }
 

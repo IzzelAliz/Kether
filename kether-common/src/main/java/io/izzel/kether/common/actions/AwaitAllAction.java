@@ -18,12 +18,11 @@ final class AwaitAllAction extends QuestAction<Void> {
     }
 
     @Override
-    public CompletableFuture<Void> process(QuestContext context) {
+    public CompletableFuture<Void> process(QuestContext.Frame frame) {
         CompletableFuture<?>[] futures = new CompletableFuture[actions.size()];
         for (int i = 0; i < actions.size(); i++) {
             QuestAction<?> action = actions.get(i);
-            CompletableFuture<?> future = context.runAction(action);
-            futures[i] = future;
+            futures[i] = frame.newFrame(action).run();
         }
         return CompletableFuture.allOf(futures);
     }

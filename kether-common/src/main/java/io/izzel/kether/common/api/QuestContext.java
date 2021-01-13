@@ -1,5 +1,8 @@
 package io.izzel.kether.common.api;
 
+import io.izzel.kether.common.api.data.ExitStatus;
+import io.izzel.kether.common.api.data.QuestFuture;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +35,7 @@ public interface QuestContext {
 
     Frame rootFrame();
 
-    interface Frame {
+    interface Frame extends AutoCloseable {
 
         String name();
 
@@ -47,9 +50,11 @@ public interface QuestContext {
         }
 
         default Stream<Frame> walkFrames(int depth) {
-            return this.children().stream()
-                .map(it -> it.walkFrames(depth - 1))
-                .reduce(Stream.of(this), Stream::concat);
+            if (depth < 0) return Stream.empty();
+            else if (depth == 0) return Stream.of(this);
+            else return this.children().stream()
+                    .map(it -> it.walkFrames(depth - 1))
+                    .reduce(Stream.of(this), Stream::concat);
         }
 
         Optional<Frame> parent();

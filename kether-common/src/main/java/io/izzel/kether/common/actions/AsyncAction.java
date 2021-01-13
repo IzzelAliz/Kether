@@ -4,7 +4,7 @@ import io.izzel.kether.common.api.KetherCompleters;
 import io.izzel.kether.common.api.QuestAction;
 import io.izzel.kether.common.api.QuestActionParser;
 import io.izzel.kether.common.api.QuestContext;
-import io.izzel.kether.common.api.QuestFuture;
+import io.izzel.kether.common.api.data.QuestFuture;
 import io.izzel.kether.common.api.QuestService;
 
 import java.util.concurrent.CompletableFuture;
@@ -18,10 +18,9 @@ public class AsyncAction<T> extends QuestAction<QuestFuture<T>> {
     }
 
     @Override
-    public CompletableFuture<QuestFuture<T>> process(QuestContext context) {
-        QuestContext child = context.createChild();
-        CompletableFuture<T> future = child.runAction(action);
-        return CompletableFuture.completedFuture(QuestFuture.of(child, action, future));
+    public CompletableFuture<QuestFuture<T>> process(QuestContext.Frame frame) {
+        CompletableFuture<T> future = frame.newFrame(action).run();
+        return CompletableFuture.completedFuture(new QuestFuture<>(action, future));
     }
 
     public static QuestActionParser parser(QuestService<?> service) {

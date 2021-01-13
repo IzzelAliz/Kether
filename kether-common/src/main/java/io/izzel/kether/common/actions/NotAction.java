@@ -18,11 +18,8 @@ final class NotAction extends QuestAction<Boolean> {
     }
 
     @Override
-    public CompletableFuture<Boolean> process(QuestContext context) {
-        return context.runAction(action).thenApplyAsync(
-            t -> !Coerce.toBoolean(t),
-            context.getExecutor()
-        );
+    public CompletableFuture<Boolean> process(QuestContext.Frame frame) {
+        return frame.newFrame(action).run().thenApply(t -> !Coerce.toBoolean(t));
     }
 
     @Override

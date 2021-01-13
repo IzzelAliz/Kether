@@ -1,6 +1,6 @@
 package io.izzel.kether.common.actions;
 
-import io.izzel.kether.common.api.ExitStatus;
+import io.izzel.kether.common.api.data.ExitStatus;
 import io.izzel.kether.common.api.KetherCompleters;
 import io.izzel.kether.common.api.QuestAction;
 import io.izzel.kether.common.api.QuestActionParser;
@@ -22,9 +22,9 @@ final class ExitAction extends QuestAction<Void> {
     }
 
     @Override
-    public CompletableFuture<Void> process(QuestContext context) {
+    public CompletableFuture<Void> process(QuestContext.Frame frame) {
         long actual = timeout == 0 ? 0 : System.currentTimeMillis() + timeout;
-        context.setExitStatus(new ExitStatus(running, waiting, actual));
+        frame.context().setExitStatus(new ExitStatus(running, waiting, actual));
         return CompletableFuture.completedFuture(null);
     }
 

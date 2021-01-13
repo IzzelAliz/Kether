@@ -4,7 +4,7 @@ import io.izzel.kether.common.api.KetherCompleters;
 import io.izzel.kether.common.api.QuestAction;
 import io.izzel.kether.common.api.QuestActionParser;
 import io.izzel.kether.common.api.QuestContext;
-import io.izzel.kether.common.api.QuestFuture;
+import io.izzel.kether.common.api.data.QuestFuture;
 import io.izzel.kether.common.api.QuestService;
 
 import java.util.concurrent.CompletableFuture;
@@ -18,9 +18,9 @@ final class AwaitAction<T> extends QuestAction<T> {
     }
 
     @Override
-    public CompletableFuture<T> process(QuestContext context) {
+    public CompletableFuture<T> process(QuestContext.Frame frame) {
         CompletableFuture<T> future = new CompletableFuture<>();
-        context.runAction(action).thenAccept(QuestFuture.complete(future));
+        frame.newFrame(action).<T>run().thenAccept(QuestFuture.complete(future));
         return future;
     }
 
