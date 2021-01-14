@@ -79,6 +79,8 @@ public interface QuestContext {
         <T> CompletableFuture<T> run();
 
         void close();
+
+        boolean isDone();
     }
 
     interface VarTable {

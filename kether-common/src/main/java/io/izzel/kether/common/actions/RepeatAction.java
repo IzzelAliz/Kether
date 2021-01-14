@@ -1,6 +1,6 @@
 package io.izzel.kether.common.actions;
 
-import io.izzel.kether.common.api.KetherCompleters;
+import io.izzel.kether.common.api.persistent.KetherCompleters;
 import io.izzel.kether.common.api.QuestAction;
 import io.izzel.kether.common.api.QuestActionParser;
 import io.izzel.kether.common.api.QuestContext;
@@ -29,12 +29,12 @@ final class RepeatAction extends QuestAction<Void> {
 
     private void process(QuestContext.Frame frame, CompletableFuture<Void> future, int cur) {
         if (cur < time) {
-            frame.newFrame(action).thenRunAsync(() -> {
-                context.putLocal("times", cur + 1);
-                process(context, future, cur + 1);
-            }, context.getExecutor());
+            frame.newFrame(action).run().thenRunAsync(() -> {
+                frame.variables().set("times", cur + 1);
+                process(frame, future, cur + 1);
+            }, frame.context().getExecutor());
         } else {
-            context.putLocal("times", null);
+            frame.variables().set("times", null);
             future.complete(null);
         }
     }

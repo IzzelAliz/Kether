@@ -2,7 +2,7 @@ package io.izzel.kether.bukkit.actions;
 
 import io.izzel.kether.bukkit.BukkitQuestContext;
 import io.izzel.kether.common.api.data.ContextString;
-import io.izzel.kether.common.api.KetherCompleters;
+import io.izzel.kether.common.api.persistent.KetherCompleters;
 import io.izzel.kether.common.api.QuestAction;
 import io.izzel.kether.common.api.QuestActionParser;
 import io.izzel.kether.common.util.LocalizedException;
@@ -58,9 +58,10 @@ final class CommandAction extends QuestAction<Boolean> {
     public static QuestActionParser parser() {
         return QuestActionParser.<Boolean, BukkitQuestContext>of(
             resolver -> {
-                boolean op = false, console = false;
+                boolean op = resolver.flag("o");
+                boolean console = resolver.flag("c");
                 while (resolver.hasNext()) {
-                    String s = resolver.nextElement();
+                    String s = resolver.nextToken();
                     if (s.equals("-o")) op = true;
                     else if (s.equals("-c")) console = true;
                     else {

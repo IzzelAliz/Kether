@@ -1,6 +1,10 @@
-package io.izzel.kether.common.api;
+package io.izzel.kether.common.loader;
 
 import com.google.common.collect.ImmutableMap;
+import io.izzel.kether.common.api.QuestAction;
+import io.izzel.kether.common.api.QuestActionParser;
+import io.izzel.kether.common.api.QuestContext;
+import io.izzel.kether.common.api.QuestService;
 import io.izzel.kether.common.api.data.ContextString;
 import io.izzel.kether.common.util.LocalizedException;
 
@@ -9,14 +13,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
-public final class SimpleResolver implements QuestResolver {
+public class SimpleReader implements QuestReader {
 
     private final QuestService<?> service;
     private final char[] arr;
     private int index = 0;
     private int mark = 0;
 
-    public SimpleResolver(QuestService<?> service, String text) {
+    public SimpleReader(QuestService<?> service, String text) {
         this.service = service;
         this.arr = text.toCharArray();
     }
@@ -53,7 +57,7 @@ public final class SimpleResolver implements QuestResolver {
     }
 
     @Override
-    public String nextElement() {
+    public String nextToken() {
         skipBlank();
         if (arr.length - index >= 6 && peek() == '"'
             && peek(1) == '"' && peek(2) == '"') {
@@ -81,17 +85,13 @@ public final class SimpleResolver implements QuestResolver {
     }
 
     @Override
-    public ContextString nextContextString() {
-        return contexted(nextElement());
-    }
-
-    @Override
-    public ContextString contexted(String str) {
+    public ContextString nextString() {
+        String str = nextToken();
         if (!Character.isWhitespace(peek())) {
-            String[] ids = nextElement().split(",");
-            Map<String, BiFunction<QuestContext, String, String>> map = new HashMap<>();
+            String[] ids = nextToken().split(",");
+            Map<String, BiFunction<QuestContext.Frame, String, String>> map = new HashMap<>();
             for (String id : ids) {
-                Optional<BiFunction<QuestContext, String, String>> optional = service.getRegistry().getContextStringProcessor(id);
+                Optional<BiFunction<QuestContext.Frame, String, String>> optional = service.getRegistry().getContextStringProcessor(id);
                 optional.ifPresent(f -> map.put(id, f));
             }
             return new ContextString(str, map);
@@ -112,13 +112,45 @@ public final class SimpleResolver implements QuestResolver {
     @Override
     public <T> QuestAction<T> nextAction() {
         skipBlank();
-        String element = nextElement();
+        String element = nextToken();
         Optional<QuestActionParser> optional = service.getRegistry().getParser(element);
         if (optional.isPresent()) {
             return optional.get().resolve(this);
         } else {
             throw LocalizedException.of("unknown-action", element);
         }
+    }
+
+    @Override
+    public boolean flag(String name) {
+        skipBlank();
+        if (peek() == '-') {
+            mark();
+            String s = nextToken();
+            if (s.substring(1).equals(name)) {
+                return true;
+            } else {
+                reset();
+                return false;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public <T> Optional<T> optionalFlag(String name, ArgType<T> flagType) {
+        skipBlank();
+        if (peek() == '-') {
+            mark();
+            String s = nextToken();
+            if (s.substring(1).equals(name)) {
+                return Optional.of(next(flagType));
+            } else {
+                reset();
+                return Optional.empty();
+            }
+        }
+        return Optional.empty();
     }
 
     private void skipBlank() {

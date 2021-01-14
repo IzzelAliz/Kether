@@ -1,6 +1,6 @@
 package io.izzel.kether.common.api.data;
 
-import io.izzel.kether.common.api.KetherSerializer;
+import io.izzel.kether.common.api.persistent.KetherSerializer;
 import io.izzel.kether.common.util.Coerce;
 
 import java.util.LinkedHashMap;

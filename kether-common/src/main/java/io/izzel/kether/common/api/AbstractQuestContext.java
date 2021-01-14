@@ -29,19 +29,18 @@ public abstract class AbstractQuestContext<This extends AbstractQuestContext<Thi
     protected CompletableFuture<Object> future;
 
     protected AbstractQuestContext(QuestService<This> service, Quest quest, String playerIdentifier) {
-        this(service, quest, playerIdentifier, null)
-    }
-
-    protected AbstractQuestContext(QuestService<This> service, Quest quest, String playerIdentifier, Frame rootFrame) {
         this.service = service;
         this.quest = quest;
         this.playerIdentifier = playerIdentifier;
-        this.rootFrame = rootFrame != null ? rootFrame :
-            new SimpleNamedFrame(null, new LinkedList<>(), new SimpleVarTable(null), QuestContext.BASE_BLOCK);
+        this.rootFrame = createRootFrame();
         this.executor = new QuestExecutor();
     }
 
     protected abstract Executor createExecutor();
+
+    protected Frame createRootFrame() {
+        return new SimpleNamedFrame(null, new LinkedList<>(), new SimpleVarTable(null), QuestContext.BASE_BLOCK);
+    }
 
     public QuestService<This> getService() {
         return service;
@@ -174,6 +173,11 @@ public abstract class AbstractQuestContext<This extends AbstractQuestContext<Thi
             this.future = null;
         }
 
+        @Override
+        public boolean isDone() {
+            return this.future == null || this.future.isDone();
+        }
+
         void cleanup() {
             while (!closeables.isEmpty()) {
                 try {
@@ -247,6 +251,7 @@ public abstract class AbstractQuestContext<This extends AbstractQuestContext<Thi
         private void process(CompletableFuture<?> future) {
             while (exitStatus == null) {
                 this.cleanup();
+                this.frames.removeIf(Frame::isDone);
                 Optional<? extends QuestAction<?>> optional = nextAction();
                 if (optional.isPresent()) {
                     QuestAction<?> action = optional.get();

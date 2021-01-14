@@ -1,6 +1,6 @@
 package io.izzel.kether.common.actions;
 
-import io.izzel.kether.common.api.KetherCompleters;
+import io.izzel.kether.common.api.persistent.KetherCompleters;
 import io.izzel.kether.common.api.QuestAction;
 import io.izzel.kether.common.api.QuestActionParser;
 import io.izzel.kether.common.api.QuestContext;
@@ -47,11 +47,11 @@ final class IfAction<U> extends QuestAction<U> {
         return QuestActionParser.of(
             resolver -> {
                 QuestAction<?> condition = resolver.nextAction();
-                resolver.consume("then");
+                resolver.expect("then");
                 QuestAction<U> trueAction = resolver.nextAction();
                 if (resolver.hasNext()) {
                     resolver.mark();
-                    String element = resolver.nextElement();
+                    String element = resolver.nextToken();
                     if (element.equals("else")) {
                         QuestAction<U> falseAction = resolver.nextAction();
                         return new IfAction<>(condition, trueAction, falseAction);

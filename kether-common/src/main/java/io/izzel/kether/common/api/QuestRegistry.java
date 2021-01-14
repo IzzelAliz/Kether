@@ -1,5 +1,7 @@
 package io.izzel.kether.common.api;
 
+import io.izzel.kether.common.api.persistent.KetherSerializer;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
@@ -25,5 +27,5 @@ public interface QuestRegistry {
 
     <T> Optional<KetherSerializer<T>> getPersistentDataSerializer(String id);
 
-    Optional<BiFunction<QuestContext, String, String>> getContextStringProcessor(String id);
+    Optional<BiFunction<QuestContext.Frame, String, String>> getContextStringProcessor(String id);
 }

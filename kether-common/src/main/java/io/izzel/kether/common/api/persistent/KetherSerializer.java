@@ -1,4 +1,4 @@
-package io.izzel.kether.common.api;
+package io.izzel.kether.common.api.persistent;
 
 import java.util.Map;
 import java.util.Optional;

@@ -1,5 +1,7 @@
 package io.izzel.kether.common.api;
 
+import io.izzel.kether.common.api.persistent.KetherSerializer;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;

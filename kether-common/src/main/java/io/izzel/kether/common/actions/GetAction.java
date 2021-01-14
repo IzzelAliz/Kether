@@ -1,6 +1,6 @@
 package io.izzel.kether.common.actions;
 
-import io.izzel.kether.common.api.KetherCompleters;
+import io.izzel.kether.common.api.persistent.KetherCompleters;
 import io.izzel.kether.common.api.QuestAction;
 import io.izzel.kether.common.api.QuestActionParser;
 import io.izzel.kether.common.api.QuestContext;
@@ -22,7 +22,7 @@ public class GetAction extends QuestAction<Object> {
 
     public static QuestActionParser parser() {
         return QuestActionParser.of(
-            resolver -> new GetAction(resolver.nextElement()),
+            resolver -> new GetAction(resolver.nextToken()),
             KetherCompleters.consume()
         );
     }

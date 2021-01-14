@@ -1,6 +1,6 @@
 package io.izzel.kether.common.api.storage;
 
-import io.izzel.kether.common.api.KetherSerializer;
+import io.izzel.kether.common.api.persistent.KetherSerializer;
 import io.izzel.kether.common.api.QuestService;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 import org.yaml.snakeyaml.error.YAMLException;

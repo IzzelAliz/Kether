@@ -8,18 +8,18 @@ import java.util.function.BiFunction;
 public class ContextString {
 
     private final String origin;
-    private final Map<String, BiFunction<QuestContext, String, String>> map;
+    private final Map<String, BiFunction<QuestContext.Frame, String, String>> map;
 
-    public ContextString(String origin, Map<String, BiFunction<QuestContext, String, String>> map) {
+    public ContextString(String origin, Map<String, BiFunction<QuestContext.Frame, String, String>> map) {
         this.origin = origin;
         this.map = map;
     }
 
-    public String get(QuestContext context) {
+    public String get(QuestContext.Frame frame) {
         String ret = origin;
-        for (Map.Entry<String, BiFunction<QuestContext, String, String>> entry : map.entrySet()) {
+        for (Map.Entry<String, BiFunction<QuestContext.Frame, String, String>> entry : map.entrySet()) {
             try {
-                ret = entry.getValue().apply(context, ret);
+                ret = entry.getValue().apply(frame, ret);
             } catch (Throwable t) {
                 return String.format("Exception processing context string %s: %s", entry.getKey(), t.toString());
             }

@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
-import io.izzel.kether.common.loader.QuestLoader;
+import io.izzel.kether.common.loader.SimpleQuestLoader;
 import io.izzel.kether.common.api.DefaultRegistry;
 import io.izzel.kether.common.api.data.ExitStatus;
 import io.izzel.kether.common.api.Quest;
@@ -39,7 +39,7 @@ public class KetherBukkitQuestService implements QuestService<BukkitQuestContext
     }
 
     void loadAll() throws Exception {
-        questMap = QuestLoader.loadFolder(KetherPlugin.instance().getKetherConfig().getQuestFolder(),
+        questMap = SimpleQuestLoader.loadFolder(KetherPlugin.instance().getKetherConfig().getQuestFolder(),
             this, KetherPlugin.instance().getLogger());
         settingsMap = new HashMap<>();
         for (Quest quest : questMap.values()) {

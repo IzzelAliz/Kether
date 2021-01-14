@@ -3,7 +3,7 @@ package io.izzel.kether.bukkit.actions;
 import io.izzel.kether.bukkit.BukkitQuestContext;
 import io.izzel.kether.bukkit.KetherPlugin;
 import io.izzel.kether.bukkit.util.Closables;
-import io.izzel.kether.common.api.KetherCompleters;
+import io.izzel.kether.common.api.persistent.KetherCompleters;
 import io.izzel.kether.common.api.QuestAction;
 import io.izzel.kether.common.api.QuestActionParser;
 import org.bukkit.Bukkit;

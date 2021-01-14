@@ -4,7 +4,7 @@ import io.izzel.kether.bukkit.BukkitQuestContext;
 import io.izzel.kether.bukkit.KetherPlugin;
 import io.izzel.kether.bukkit.util.Closables;
 import io.izzel.kether.common.api.data.ContextString;
-import io.izzel.kether.common.api.KetherCompleters;
+import io.izzel.kether.common.api.persistent.KetherCompleters;
 import io.izzel.kether.common.api.QuestAction;
 import io.izzel.kether.common.api.QuestActionParser;
 import org.bukkit.Bukkit;
@@ -59,10 +59,10 @@ final class MessageAction extends QuestAction<Void> {
     public static QuestActionParser parser() {
         return QuestActionParser.<Void, BukkitQuestContext>of(
             resolver -> {
-                String s = resolver.nextElement();
+                String s = resolver.nextToken();
                 if (s.equals("-t")) {
                     long timeout = resolver.nextLong();
-                    return new MessageAction(resolver.nextContextString(), timeout);
+                    return new MessageAction(resolver.nextString(), timeout);
                 } else {
                     return new MessageAction(
                         resolver.contexted(s),

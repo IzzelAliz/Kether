@@ -1,6 +1,6 @@
 package io.izzel.kether.common.actions;
 
-import io.izzel.kether.common.api.KetherCompleters;
+import io.izzel.kether.common.api.persistent.KetherCompleters;
 import io.izzel.kether.common.api.QuestAction;
 import io.izzel.kether.common.api.QuestActionParser;
 import io.izzel.kether.common.api.QuestContext;
@@ -32,7 +32,7 @@ final class CallAction extends QuestAction<Object> {
 
     public static QuestActionParser parser() {
         return QuestActionParser.of(
-            resolver -> new CallAction(resolver.nextElement()),
+            resolver -> new CallAction(resolver.nextToken()),
             KetherCompleters.consume()
         );
     }

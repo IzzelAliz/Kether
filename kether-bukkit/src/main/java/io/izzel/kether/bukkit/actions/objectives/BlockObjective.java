@@ -2,7 +2,7 @@ package io.izzel.kether.bukkit.actions.objectives;
 
 import io.izzel.kether.bukkit.BukkitQuestContext;
 import io.izzel.kether.bukkit.util.Closables;
-import io.izzel.kether.common.api.KetherCompleters;
+import io.izzel.kether.common.api.persistent.KetherCompleters;
 import io.izzel.kether.common.api.QuestAction;
 import io.izzel.kether.common.api.QuestActionParser;
 import org.bukkit.Material;
@@ -18,21 +18,21 @@ public abstract class BlockObjective extends QuestAction<Void> {
 
     public static QuestActionParser blockBreak() {
         return QuestActionParser.<Void, BukkitQuestContext>of(
-            resolver -> new BlockBreak(Material.matchMaterial(resolver.nextElement())),
+            resolver -> new BlockBreak(Material.matchMaterial(resolver.nextToken())),
             KetherCompleters.enumValue(Material.class)
         );
     }
 
     public static QuestActionParser blockPlace() {
         return QuestActionParser.<Void, BukkitQuestContext>of(
-            resolver -> new BlockPlace(Material.matchMaterial(resolver.nextElement())),
+            resolver -> new BlockPlace(Material.matchMaterial(resolver.nextToken())),
             KetherCompleters.enumValue(Material.class)
         );
     }
 
     public static QuestActionParser blockInteract(Action action) {
         return QuestActionParser.<Void, BukkitQuestContext>of(
-            resolver -> new BlockInteract(Material.matchMaterial(resolver.nextElement()), action),
+            resolver -> new BlockInteract(Material.matchMaterial(resolver.nextToken()), action),
             KetherCompleters.enumValue(Material.class)
         );
     }
