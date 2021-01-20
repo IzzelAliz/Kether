@@ -103,7 +103,7 @@ public abstract class AbstractQuestContext<This extends AbstractQuestContext<Thi
 
         @Override
         public void execute(Runnable command) {
-            if (exitStatus != null) {
+            if (exitStatus == null) {
                 actual.execute(command);
             }
         }
