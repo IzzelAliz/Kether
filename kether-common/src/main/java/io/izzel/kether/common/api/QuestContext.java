@@ -41,7 +41,7 @@ public interface QuestContext {
 
         QuestContext context();
 
-        Optional<QuestAction<?>> currentAction();
+        Optional<ParsedAction<?>> currentAction();
 
         List<Frame> children();
 
@@ -59,13 +59,13 @@ public interface QuestContext {
 
         Optional<Frame> parent();
 
-        void setNext(QuestAction<?> action);
+        void setNext(ParsedAction<?> action);
 
         void setNext(Quest.Block block);
 
         Frame newFrame(String name);
 
-        Frame newFrame(QuestAction<?> action);
+        Frame newFrame(ParsedAction<?> action);
 
         VarTable variables();
 
@@ -91,7 +91,7 @@ public interface QuestContext {
 
         void set(String name, Object value);
 
-        <T> void set(String name, QuestAction<T> owner, CompletableFuture<T> future);
+        <T> void set(String name, ParsedAction<T> owner, CompletableFuture<T> future);
 
         Set<String> keys();
 

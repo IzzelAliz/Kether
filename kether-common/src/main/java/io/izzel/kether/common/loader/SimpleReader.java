@@ -1,11 +1,13 @@
 package io.izzel.kether.common.loader;
 
 import com.google.common.collect.ImmutableMap;
+import io.izzel.kether.common.api.ActionProperties;
+import io.izzel.kether.common.api.ParsedAction;
 import io.izzel.kether.common.api.QuestAction;
 import io.izzel.kether.common.api.QuestActionParser;
 import io.izzel.kether.common.api.QuestContext;
 import io.izzel.kether.common.api.QuestService;
-import io.izzel.kether.common.api.data.ContextString;
+import io.izzel.kether.common.api.data.VarString;
 import io.izzel.kether.common.util.LocalizedException;
 
 import java.util.HashMap;
@@ -13,79 +15,46 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
-public class SimpleReader implements QuestReader {
+public class SimpleReader extends AbstractStringReader implements QuestReader {
 
     private final QuestService<?> service;
-    private final char[] arr;
-    private int index = 0;
-    private int mark = 0;
+    private final SimpleQuestLoader.Parser parser;
 
-    public SimpleReader(QuestService<?> service, String text) {
+    public SimpleReader(QuestService<?> service, SimpleQuestLoader.Parser parser) {
+        super(parser.arr);
         this.service = service;
-        this.arr = text.toCharArray();
-    }
-
-    @Override
-    public char peek() {
-        return arr[index];
-    }
-
-    @Override
-    public char peek(int n) {
-        return arr[index + n];
-    }
-
-    @Override
-    public int getIndex() {
-        return index;
-    }
-
-    @Override
-    public int getMark() {
-        return mark;
-    }
-
-    @Override
-    public void setIndex(int index) {
-        this.index = index;
-    }
-
-    @Override
-    public boolean hasNext() {
-        skipBlank();
-        return index < arr.length;
+        this.parser = parser;
+        this.index = parser.index;
     }
 
     @Override
     public String nextToken() {
-        skipBlank();
-        if (arr.length - index >= 6 && peek() == '"'
-            && peek(1) == '"' && peek(2) == '"') {
-            index += 3;
+        if (hasNext() && peek() == '"') {
             int cnt = 0;
+            while (hasNext() && peek() == '"') {
+                cnt++;
+                skip(1);
+            }
+            int met = 0;
             int i;
             for (i = index; i < arr.length; ++i) {
-                if (arr[i] == '"') cnt++;
+                if (arr[i] == '"') met++;
                 else {
-                    if (cnt >= 3) break;
-                    else cnt = 0;
+                    if (met >= cnt) break;
+                    else met = 0;
                 }
             }
-            if (cnt < 3) throw LocalizedException.of("string-not-close");
-            String ret = new String(arr, index, i - 3 - index);
+            if (met < cnt) throw LocalizedException.of("string-not-close");
+            String ret = new String(arr, index, i - cnt - index);
             index = i;
             return ret;
         } else {
-            int begin = index;
-            while (index < arr.length && !Character.isWhitespace(arr[index])) {
-                index++;
-            }
-            return new String(arr, begin, index - begin);
+            return super.nextToken();
         }
     }
 
     @Override
-    public ContextString nextString() {
+    public VarString nextString() {
         String str = nextToken();
         if (!Character.isWhitespace(peek())) {
             String[] ids = nextToken().split(",");
@@ -94,31 +63,44 @@ public class SimpleReader implements QuestReader {
                 Optional<BiFunction<QuestContext.Frame, String, String>> optional = service.getRegistry().getContextStringProcessor(id);
                 optional.ifPresent(f -> map.put(id, f));
             }
-            return new ContextString(str, map);
+            return new VarString(str, map);
         }
-        return new ContextString(str, ImmutableMap.of());
+        return new VarString(str, ImmutableMap.of());
+    }
+
+    protected ParsedAction<?> nextAnonAction() {
+        ParsedAction<?> parsedAction = parser.readAnonymousAction();
+        parsedAction.set(ActionProperties.REQUIRE_FRAME, true);
+        return parsedAction;
     }
 
     @Override
-    public void mark() {
-        this.mark = index;
-    }
-
-    @Override
-    public void reset() {
-        this.index = mark;
-    }
-
-    @Override
-    public <T> QuestAction<T> nextAction() {
-        skipBlank();
-        String element = nextToken();
-        Optional<QuestActionParser> optional = service.getRegistry().getParser(element);
-        if (optional.isPresent()) {
-            return optional.get().resolve(this);
+    @SuppressWarnings("unchecked")
+    public <T> ParsedAction<T> nextAction() {
+        if (hasNext() && peek() == '{') {
+            parser.index = this.index;
+            ParsedAction<?> action = nextAnonAction();
+            this.index = parser.index;
+            return (ParsedAction<T>) action;
         } else {
-            throw LocalizedException.of("unknown-action", element);
+            String element = nextToken();
+            Optional<QuestActionParser> optional = service.getRegistry().getParser(element);
+            if (optional.isPresent()) {
+                QuestAction<T> action = optional.get().resolve(this);
+                return this.wrap(action);
+            } else {
+                throw LocalizedException.of("unknown-action", element);
+            }
         }
+    }
+
+    protected <T> ParsedAction<T> wrap(QuestAction<T> action) {
+        return new ParsedAction<>(action);
+    }
+
+    @Override
+    public void expect(String value) {
+        super.expect(value);
     }
 
     @Override
@@ -151,19 +133,5 @@ public class SimpleReader implements QuestReader {
             }
         }
         return Optional.empty();
-    }
-
-    private void skipBlank() {
-        while (index < arr.length) {
-            if (Character.isWhitespace(arr[index])) {
-                index++;
-            } else if (index + 1 < arr.length && arr[index] == '/' && arr[index + 1] == '/') {
-                while (index < arr.length && arr[index] != '\n' && arr[index] != '\r') {
-                    index++;
-                }
-            } else {
-                break;
-            }
-        }
     }
 }

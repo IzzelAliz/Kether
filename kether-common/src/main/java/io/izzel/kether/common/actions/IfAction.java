@@ -1,5 +1,6 @@
 package io.izzel.kether.common.actions;
 
+import io.izzel.kether.common.api.ParsedAction;
 import io.izzel.kether.common.api.persistent.KetherCompleters;
 import io.izzel.kether.common.api.QuestAction;
 import io.izzel.kether.common.api.QuestActionParser;
@@ -11,11 +12,11 @@ import java.util.concurrent.CompletableFuture;
 
 final class IfAction<U> extends QuestAction<U> {
 
-    private final QuestAction<?> condition;
-    private final QuestAction<U> trueAction;
-    private final QuestAction<U> falseAction;
+    private final ParsedAction<?> condition;
+    private final ParsedAction<U> trueAction;
+    private final ParsedAction<U> falseAction;
 
-    public IfAction(QuestAction<?> condition, QuestAction<U> trueAction, QuestAction<U> falseAction) {
+    public IfAction(ParsedAction<?> condition, ParsedAction<U> trueAction, ParsedAction<U> falseAction) {
         this.condition = condition;
         this.trueAction = trueAction;
         this.falseAction = falseAction;
@@ -46,20 +47,20 @@ final class IfAction<U> extends QuestAction<U> {
     public static <U, CTX extends QuestContext> QuestActionParser parser(QuestService<CTX> service) {
         return QuestActionParser.of(
             resolver -> {
-                QuestAction<?> condition = resolver.nextAction();
+                ParsedAction<?> condition = resolver.nextAction();
                 resolver.expect("then");
-                QuestAction<U> trueAction = resolver.nextAction();
+                ParsedAction<U> trueAction = resolver.nextAction();
                 if (resolver.hasNext()) {
                     resolver.mark();
                     String element = resolver.nextToken();
                     if (element.equals("else")) {
-                        QuestAction<U> falseAction = resolver.nextAction();
+                        ParsedAction<U> falseAction = resolver.nextAction();
                         return new IfAction<>(condition, trueAction, falseAction);
                     } else {
                         resolver.reset();
                     }
                 }
-                return new IfAction<>(condition, trueAction, QuestAction.noop());
+                return new IfAction<>(condition, trueAction, ParsedAction.noop());
             },
             KetherCompleters.seq(
                 KetherCompleters.action(service),

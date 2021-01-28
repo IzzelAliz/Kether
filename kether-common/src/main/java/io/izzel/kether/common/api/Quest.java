@@ -12,16 +12,16 @@ public interface Quest {
 
     Map<String, Block> getBlocks();
 
-    Optional<Block> blockOf(QuestAction<?> action);
+    Optional<Block> blockOf(ParsedAction<?> action);
 
     interface Block {
 
         String getLabel();
 
-        List<QuestAction<?>> getActions();
+        List<ParsedAction<?>> getActions();
 
-        int indexOf(QuestAction<?> action);
+        int indexOf(ParsedAction<?> action);
 
-        Optional<QuestAction<?>> get(int i);
+        Optional<ParsedAction<?>> get(int i);
     }
 }

@@ -19,7 +19,7 @@ final class CallAction extends QuestAction<Object> {
     public CompletableFuture<Object> process(QuestContext.Frame frame) {
         QuestContext.Frame newFrame = frame.newFrame(block);
         newFrame.setNext(frame.context().getQuest().getBlocks().get(block));
-        frame.addClosable(newFrame::close);
+        frame.addClosable(newFrame);
         return newFrame.run();
     }
 

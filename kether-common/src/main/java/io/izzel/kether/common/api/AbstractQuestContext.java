@@ -146,8 +146,14 @@ public abstract class AbstractQuestContext<This extends AbstractQuestContext<Thi
         }
 
         @Override
-        public Frame newFrame(QuestAction<?> action) {
-            SimpleActionFrame frame = new SimpleActionFrame(this, new LinkedList<>(), new SimpleVarTable(this), action);
+        public Frame newFrame(ParsedAction<?> action) {
+            Frame frame;
+            if (action.get(ActionProperties.REQUIRE_FRAME, false)) {
+                frame = new SimpleNamedFrame(this, new LinkedList<>(), new SimpleVarTable(this), "__anon__" + System.nanoTime());
+                frame.setNext(action);
+            } else {
+                frame = new SimpleActionFrame(this, new LinkedList<>(), new SimpleVarTable(this), action);
+            }
             this.frames.add(frame);
             return frame;
         }
@@ -206,7 +212,7 @@ public abstract class AbstractQuestContext<This extends AbstractQuestContext<Thi
         }
 
         @Override
-        public Optional<QuestAction<?>> currentAction() {
+        public Optional<ParsedAction<?>> currentAction() {
             if (block == null || sp == -1) {
                 return Optional.empty();
             } else {
@@ -215,7 +221,7 @@ public abstract class AbstractQuestContext<This extends AbstractQuestContext<Thi
         }
 
         @Override
-        public void setNext(QuestAction<?> action) {
+        public void setNext(ParsedAction<?> action) {
             if (block != null) {
                 np = block.indexOf(action);
                 if (np == -1) next = null;
@@ -252,9 +258,9 @@ public abstract class AbstractQuestContext<This extends AbstractQuestContext<Thi
             while (exitStatus == null) {
                 this.cleanup();
                 this.frames.removeIf(Frame::isDone);
-                Optional<? extends QuestAction<?>> optional = nextAction();
+                Optional<? extends ParsedAction<?>> optional = nextAction();
                 if (optional.isPresent()) {
-                    QuestAction<?> action = optional.get();
+                    ParsedAction<?> action = optional.get();
                     CompletableFuture<?> newFuture = action.process(this);
                     if (!newFuture.isDone()) {
                         newFuture.thenRunAsync(() -> this.process(newFuture), getExecutor());
@@ -269,7 +275,7 @@ public abstract class AbstractQuestContext<This extends AbstractQuestContext<Thi
             }
         }
 
-        private Optional<? extends QuestAction<?>> nextAction() {
+        private Optional<? extends ParsedAction<?>> nextAction() {
             if (next != null && np != -1) {
                 return (block = next).get(sp = np++);
             } else return Optional.empty();
@@ -278,9 +284,9 @@ public abstract class AbstractQuestContext<This extends AbstractQuestContext<Thi
 
     protected class SimpleActionFrame extends AbstractFrame {
 
-        protected final QuestAction<?> action;
+        protected final ParsedAction<?> action;
 
-        public SimpleActionFrame(Frame parent, List<Frame> frames, VarTable varTable, QuestAction<?> action) {
+        public SimpleActionFrame(Frame parent, List<Frame> frames, VarTable varTable, ParsedAction<?> action) {
             super(parent, frames, varTable);
             this.action = action;
         }
@@ -291,12 +297,12 @@ public abstract class AbstractQuestContext<This extends AbstractQuestContext<Thi
         }
 
         @Override
-        public Optional<QuestAction<?>> currentAction() {
+        public Optional<ParsedAction<?>> currentAction() {
             return Optional.of(action);
         }
 
         @Override
-        public void setNext(QuestAction<?> action) {
+        public void setNext(ParsedAction<?> action) {
             if (this.parent != null) {
                 this.parent.setNext(action);
             }
@@ -365,7 +371,7 @@ public abstract class AbstractQuestContext<This extends AbstractQuestContext<Thi
         }
 
         @Override
-        public <T> void set(String name, QuestAction<T> owner, CompletableFuture<T> future) {
+        public <T> void set(String name, ParsedAction<T> owner, CompletableFuture<T> future) {
             this.map.put(name, new QuestFuture<>(owner, future));
         }
 

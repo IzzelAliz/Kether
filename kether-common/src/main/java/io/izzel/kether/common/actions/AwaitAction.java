@@ -1,5 +1,6 @@
 package io.izzel.kether.common.actions;
 
+import io.izzel.kether.common.api.ParsedAction;
 import io.izzel.kether.common.api.persistent.KetherCompleters;
 import io.izzel.kether.common.api.QuestAction;
 import io.izzel.kether.common.api.QuestActionParser;
@@ -11,9 +12,9 @@ import java.util.concurrent.CompletableFuture;
 
 final class AwaitAction<T> extends QuestAction<T> {
 
-    private final QuestAction<T> action;
+    private final ParsedAction<T> action;
 
-    public AwaitAction(QuestAction<T> action) {
+    public AwaitAction(ParsedAction<T> action) {
         this.action = action;
     }
 

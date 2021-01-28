@@ -1,7 +1,7 @@
 package io.izzel.kether.bukkit.actions;
 
 import io.izzel.kether.bukkit.BukkitQuestContext;
-import io.izzel.kether.common.api.data.ContextString;
+import io.izzel.kether.common.api.data.VarString;
 import io.izzel.kether.common.api.persistent.KetherCompleters;
 import io.izzel.kether.common.api.QuestAction;
 import io.izzel.kether.common.api.QuestActionParser;
@@ -13,11 +13,11 @@ import java.util.concurrent.CompletableFuture;
 
 final class CommandAction extends QuestAction<Boolean> {
 
-    private final ContextString command;
+    private final VarString command;
     private final boolean console;
     private final boolean op;
 
-    public CommandAction(ContextString command, boolean console, boolean op) {
+    public CommandAction(VarString command, boolean console, boolean op) {
         this.command = command;
         this.console = console;
         this.op = op;

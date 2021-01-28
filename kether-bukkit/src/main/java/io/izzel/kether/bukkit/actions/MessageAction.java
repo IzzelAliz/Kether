@@ -3,7 +3,7 @@ package io.izzel.kether.bukkit.actions;
 import io.izzel.kether.bukkit.BukkitQuestContext;
 import io.izzel.kether.bukkit.KetherPlugin;
 import io.izzel.kether.bukkit.util.Closables;
-import io.izzel.kether.common.api.data.ContextString;
+import io.izzel.kether.common.api.data.VarString;
 import io.izzel.kether.common.api.persistent.KetherCompleters;
 import io.izzel.kether.common.api.QuestAction;
 import io.izzel.kether.common.api.QuestActionParser;
@@ -14,10 +14,10 @@ import java.util.concurrent.CompletableFuture;
 
 final class MessageAction extends QuestAction<Void> {
 
-    private final ContextString message;
+    private final VarString message;
     private final long timeoutTicks;
 
-    public MessageAction(ContextString message, long timeoutTicks) {
+    public MessageAction(VarString message, long timeoutTicks) {
         this.message = message;
         this.timeoutTicks = timeoutTicks;
     }

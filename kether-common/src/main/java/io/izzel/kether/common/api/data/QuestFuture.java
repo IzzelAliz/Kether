@@ -1,7 +1,7 @@
 package io.izzel.kether.common.api.data;
 
 import com.google.common.base.Preconditions;
-import io.izzel.kether.common.api.QuestAction;
+import io.izzel.kether.common.api.ParsedAction;
 import io.izzel.kether.common.api.QuestContext;
 
 import java.util.concurrent.CompletableFuture;
@@ -9,19 +9,19 @@ import java.util.function.Consumer;
 
 public class QuestFuture<T> {
 
-    private final QuestAction<T> action;
+    private final ParsedAction<T> action;
     private CompletableFuture<T> future;
 
-    public QuestFuture(QuestAction<T> action) {
+    public QuestFuture(ParsedAction<T> action) {
         this(action, null);
     }
 
-    public QuestFuture(QuestAction<T> action, CompletableFuture<T> future) {
+    public QuestFuture(ParsedAction<T> action, CompletableFuture<T> future) {
         this.action = action;
         this.future = future;
     }
 
-    public QuestAction<T> getAction() {
+    public ParsedAction<T> getAction() {
         return action;
     }
 

@@ -1,5 +1,6 @@
 package io.izzel.kether.common.actions;
 
+import io.izzel.kether.common.api.ParsedAction;
 import io.izzel.kether.common.api.persistent.KetherCompleters;
 import io.izzel.kether.common.api.QuestAction;
 import io.izzel.kether.common.api.QuestActionParser;
@@ -12,9 +13,9 @@ import java.util.concurrent.CompletableFuture;
 final class RepeatAction extends QuestAction<Void> {
 
     private final int time;
-    private final QuestAction<?> action;
+    private final ParsedAction<?> action;
 
-    public RepeatAction(int time, QuestAction<?> action) {
+    public RepeatAction(int time, ParsedAction<?> action) {
         this.time = time;
         this.action = action;
     }

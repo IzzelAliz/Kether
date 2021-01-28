@@ -5,7 +5,7 @@ import java.util.concurrent.CompletableFuture;
 public abstract class QuestAction<T> {
 
     /**
-     * This should not be called directly, see {@link io.izzel.kether.common.api.QuestContext.Frame#newFrame(QuestAction)}
+     * This should not be called directly, see {@link QuestContext.Frame#newFrame(ParsedAction)}
      */
     public abstract CompletableFuture<T> process(QuestContext.Frame frame);
 

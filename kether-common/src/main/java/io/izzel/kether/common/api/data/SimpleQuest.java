@@ -1,8 +1,9 @@
 package io.izzel.kether.common.api.data;
 
 import com.google.common.collect.Maps;
+import io.izzel.kether.common.api.ActionProperties;
+import io.izzel.kether.common.api.ParsedAction;
 import io.izzel.kether.common.api.Quest;
-import io.izzel.kether.common.api.QuestAction;
 
 import java.util.Collections;
 import java.util.List;
@@ -35,10 +36,12 @@ public class SimpleQuest implements Quest {
     }
 
     @Override
-    public Optional<Block> blockOf(QuestAction<?> action) {
-        if (action instanceof IndexedAction) {
-            if (((IndexedAction<?>) action).getQuest() == this) {
-                return Optional.of(((IndexedAction<?>) action).getBlock());
+    public Optional<Block> blockOf(ParsedAction<?> action) {
+        if (action.has(ActionProperties.BLOCK)) {
+            String s = action.get(ActionProperties.BLOCK);
+            Block block = map.get(s);
+            if (block.getActions().contains(action)) {
+                return Optional.of(block);
             } else {
                 return Optional.empty();
             }
@@ -63,9 +66,9 @@ public class SimpleQuest implements Quest {
     public static class SimpleBlock implements Block {
 
         private final String label;
-        private final List<QuestAction<?>> actions;
+        private final List<ParsedAction<?>> actions;
 
-        public SimpleBlock(String label, List<QuestAction<?>> actions) {
+        public SimpleBlock(String label, List<ParsedAction<?>> actions) {
             this.label = label;
             this.actions = actions;
         }
@@ -76,25 +79,17 @@ public class SimpleQuest implements Quest {
         }
 
         @Override
-        public List<QuestAction<?>> getActions() {
+        public List<ParsedAction<?>> getActions() {
             return this.actions;
         }
 
         @Override
-        public int indexOf(QuestAction<?> action) {
-            if (action instanceof IndexedAction) {
-                if (((IndexedAction<?>) action).getBlock() == this) {
-                    return ((IndexedAction<?>) action).getIndex();
-                } else {
-                    return -1;
-                }
-            } else {
-                return actions.indexOf(action);
-            }
+        public int indexOf(ParsedAction<?> action) {
+            return actions.indexOf(action);
         }
 
         @Override
-        public Optional<QuestAction<?>> get(int i) {
+        public Optional<ParsedAction<?>> get(int i) {
             if (i >= 0 && i < actions.size()) {
                 return Optional.of(actions.get(i));
             } else {

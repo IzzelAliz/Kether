@@ -1,7 +1,7 @@
 package io.izzel.kether.common.loader;
 
-import io.izzel.kether.common.api.QuestAction;
-import io.izzel.kether.common.api.data.ContextString;
+import io.izzel.kether.common.api.ParsedAction;
+import io.izzel.kether.common.api.data.VarString;
 import io.izzel.kether.common.loader.types.ArgTypes;
 import io.izzel.kether.common.util.LocalizedException;
 
@@ -18,19 +18,17 @@ public interface QuestReader {
 
     int getMark();
 
-    void setIndex(int index);
-
     boolean hasNext();
 
     String nextToken();
 
-    ContextString nextString();
+    VarString nextString();
 
     void mark();
 
     void reset();
 
-    <T> QuestAction<T> nextAction();
+    <T> ParsedAction<T> nextAction();
 
     default void expect(String value) {
         String element = nextToken();

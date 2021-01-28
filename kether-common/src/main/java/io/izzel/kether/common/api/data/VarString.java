@@ -5,12 +5,12 @@ import io.izzel.kether.common.api.QuestContext;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-public class ContextString {
+public class VarString {
 
     private final String origin;
     private final Map<String, BiFunction<QuestContext.Frame, String, String>> map;
 
-    public ContextString(String origin, Map<String, BiFunction<QuestContext.Frame, String, String>> map) {
+    public VarString(String origin, Map<String, BiFunction<QuestContext.Frame, String, String>> map) {
         this.origin = origin;
         this.map = map;
     }

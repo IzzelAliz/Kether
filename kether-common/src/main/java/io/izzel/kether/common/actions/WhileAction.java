@@ -1,5 +1,6 @@
 package io.izzel.kether.common.actions;
 
+import io.izzel.kether.common.api.ParsedAction;
 import io.izzel.kether.common.api.persistent.KetherCompleters;
 import io.izzel.kether.common.api.QuestAction;
 import io.izzel.kether.common.api.QuestActionParser;
@@ -11,10 +12,10 @@ import java.util.concurrent.CompletableFuture;
 
 final class WhileAction extends QuestAction<Void> {
 
-    private final QuestAction<?> condition;
-    private final QuestAction<?> action;
+    private final ParsedAction<?> condition;
+    private final ParsedAction<?> action;
 
-    public WhileAction(QuestAction<?> condition, QuestAction<?> action) {
+    public WhileAction(ParsedAction<?> condition, ParsedAction<?> action) {
         this.condition = condition;
         this.action = action;
     }
@@ -50,9 +51,9 @@ final class WhileAction extends QuestAction<Void> {
     public static QuestActionParser parser(QuestService<?> service) {
         return QuestActionParser.of(
             resolver -> {
-                QuestAction<?> condition = resolver.nextAction();
+                ParsedAction<?> condition = resolver.nextAction();
                 resolver.expect("then");
-                QuestAction<?> action = resolver.nextAction();
+                ParsedAction<?> action = resolver.nextAction();
                 return new WhileAction(condition, action);
             },
             KetherCompleters.seq(
