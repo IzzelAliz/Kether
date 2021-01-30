@@ -2,11 +2,7 @@ package io.izzel.kether.common.api;
 
 import io.izzel.kether.common.api.persistent.KetherSerializer;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.BiFunction;
 
 public class DefaultRegistry implements QuestRegistry {
@@ -50,10 +46,25 @@ public class DefaultRegistry implements QuestRegistry {
         return getRegisteredActions("kether");
     }
 
-    @Override
-    public Optional<QuestActionParser> getParser(String namespace, String id) {
+    private Optional<QuestActionParser> getParser(String namespace, String id) {
         Map<String, QuestActionParser> map = parsers.get(namespace);
         return map == null ? Optional.empty() : Optional.ofNullable(map.get(id));
+    }
+
+    @Override
+    public Optional<QuestActionParser> getParser(String id, List<String> namespace) {
+        String[] domain = id.split(":");
+        if (domain.length == 2) {
+            return getParser(domain[0], domain[1]);
+        } else {
+            for (String name : namespace) {
+                Optional<QuestActionParser> optional = getParser(name, id);
+                if (optional.isPresent()) {
+                    return optional;
+                }
+            }
+        }
+        return Optional.empty();
     }
 
     @Override

@@ -3,12 +3,7 @@ package io.izzel.kether.common.loader;
 import com.google.common.collect.ImmutableMap;
 import io.izzel.kether.common.actions.GetAction;
 import io.izzel.kether.common.actions.LiteralAction;
-import io.izzel.kether.common.api.ActionProperties;
-import io.izzel.kether.common.api.ParsedAction;
-import io.izzel.kether.common.api.QuestAction;
-import io.izzel.kether.common.api.QuestActionParser;
-import io.izzel.kether.common.api.QuestContext;
-import io.izzel.kether.common.api.QuestService;
+import io.izzel.kether.common.api.*;
 import io.izzel.kether.common.api.data.VarString;
 import io.izzel.kether.common.util.LocalizedException;
 
@@ -102,20 +97,9 @@ public class SimpleReader extends AbstractStringReader implements QuestReader {
             }
             default: {
                 String element = nextToken();
-                String[] domain = element.split(":");
-                if (domain.length == 2) {
-                    Optional<QuestActionParser> optional = service.getRegistry().getParser(domain[0], domain[1]);
-                    if (optional.isPresent()) {
-                        return this.wrap(optional.get().resolve(this));
-                    }
-                } else {
-                    Optional<QuestActionParser> optional;
-                    for (String name : namespace) {
-                        optional = service.getRegistry().getParser(name, element);
-                        if (optional.isPresent()) {
-                            return wrap(optional.get().resolve(this));
-                        }
-                    }
+                Optional<QuestActionParser> optional = service.getRegistry().getParser(element, namespace);
+                if (optional.isPresent()) {
+                    return wrap(optional.get().resolve(this));
                 }
                 throw LocalizedException.of("unknown-action", element);
             }

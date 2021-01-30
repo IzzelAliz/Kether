@@ -3,6 +3,7 @@ package io.izzel.kether.common.api;
 import io.izzel.kether.common.api.persistent.KetherSerializer;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
@@ -21,7 +22,7 @@ public interface QuestRegistry {
 
     Collection<String> getRegisteredActions();
 
-    Optional<QuestActionParser> getParser(String namespace, String id);
+    Optional<QuestActionParser> getParser(String id, List<String> namespace);
 
     Optional<QuestActionParser> getParser(String id);
 
