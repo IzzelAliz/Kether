@@ -15,7 +15,7 @@ public class DefaultRegistry implements QuestRegistry {
     private final Map<String, KetherSerializer<?>> serializersById = new HashMap<>();
     private final Map<Class<?>, KetherSerializer<?>> serializersByClass = new HashMap<>();
     private final Map<String, Class<?>> idToClass = new HashMap<>();
-    private final Map<String, BiFunction<QuestContext, String, String>> processors = new HashMap<>();
+    private final Map<String, BiFunction<QuestContext.Frame, String, String>> processors = new HashMap<>();
 
     @Override
     public void registerAction(String id, QuestActionParser parser) {
@@ -30,7 +30,7 @@ public class DefaultRegistry implements QuestRegistry {
     }
 
     @Override
-    public void registerContextStringProcessor(String id, BiFunction<QuestContext, String, String> processor) {
+    public void registerContextStringProcessor(String id, BiFunction<QuestContext.Frame, String, String> processor) {
         processors.put(id, processor);
     }
 
@@ -67,7 +67,8 @@ public class DefaultRegistry implements QuestRegistry {
     }
 
     @Override
-    public Optional<BiFunction<QuestContext, String, String>> getContextStringProcessor(String id) {
+    public Optional<BiFunction<QuestContext.Frame, String, String>> getContextStringProcessor(String id) {
         return Optional.ofNullable(processors.get(id));
     }
+
 }

@@ -13,7 +13,7 @@ public interface QuestRegistry {
 
     <T> void registerPersistentDataType(String id, Class<T> clazz, KetherSerializer<T> serializer);
 
-    void registerContextStringProcessor(String id, BiFunction<QuestContext, String, String> processor);
+    void registerContextStringProcessor(String id, BiFunction<QuestContext.Frame, String, String> processor);
 
     Collection<String> getRegisteredActions();
 
