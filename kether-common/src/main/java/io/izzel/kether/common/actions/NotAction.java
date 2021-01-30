@@ -1,11 +1,8 @@
 package io.izzel.kether.common.actions;
 
-import io.izzel.kether.common.api.ParsedAction;
+import io.izzel.kether.common.api.*;
 import io.izzel.kether.common.api.persistent.KetherCompleters;
-import io.izzel.kether.common.api.QuestAction;
-import io.izzel.kether.common.api.QuestActionParser;
-import io.izzel.kether.common.api.QuestContext;
-import io.izzel.kether.common.api.QuestService;
+import io.izzel.kether.common.loader.types.ArgTypes;
 import io.izzel.kether.common.util.Coerce;
 
 import java.util.concurrent.CompletableFuture;
@@ -32,7 +29,7 @@ final class NotAction extends QuestAction<Boolean> {
 
     public static QuestActionParser parser(QuestService<?> service) {
         return QuestActionParser.of(
-            resolver -> new NotAction(resolver.nextAction()),
+            resolver -> new NotAction(resolver.next(ArgTypes.ACTION)),
             KetherCompleters.action(service)
         );
     }

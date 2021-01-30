@@ -3,11 +3,14 @@ package io.izzel.kether.common.api;
 import io.izzel.kether.common.api.persistent.KetherSerializer;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
 public interface QuestRegistry {
+
+    void registerAction(String namespace, String id, QuestActionParser parser);
 
     void registerAction(String id, QuestActionParser parser);
 
@@ -15,7 +18,11 @@ public interface QuestRegistry {
 
     void registerContextStringProcessor(String id, BiFunction<QuestContext.Frame, String, String> processor);
 
+    Collection<String> getRegisteredActions(String namespace);
+
     Collection<String> getRegisteredActions();
+
+    Optional<QuestActionParser> getParser(String id, List<String> namespace);
 
     Optional<QuestActionParser> getParser(String id);
 

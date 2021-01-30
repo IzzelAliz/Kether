@@ -18,7 +18,12 @@ import java.util.logging.Logger;
 public class SimpleQuestLoader implements QuestLoader {
 
     @Override
-    public <CTX extends QuestContext> Quest load(QuestService<CTX> service, Logger logger, String id, byte[] bytes) throws LocalizedException {
+    public <C extends QuestContext> Quest load(QuestService<C> service, Logger logger, String id, byte[] bytes) throws LocalizedException {
+        return load(service, logger, id, bytes, new ArrayList<>());
+    }
+
+    @Override
+    public <CTX extends QuestContext> Quest load(QuestService<CTX> service, Logger logger, String id, byte[] bytes, List<String> namespace) throws LocalizedException {
         String content = new String(bytes, StandardCharsets.UTF_8);
         try {
             return new Parser(content.toCharArray(), service, logger).parse(id);
