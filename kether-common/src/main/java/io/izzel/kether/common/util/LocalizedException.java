@@ -1,5 +1,7 @@
 package io.izzel.kether.common.util;
 
+import io.izzel.kether.common.api.QuestService;
+
 import java.util.function.Supplier;
 
 public class LocalizedException extends RuntimeException {
@@ -23,6 +25,11 @@ public class LocalizedException extends RuntimeException {
     @Override
     public void printStackTrace() {
         super.printStackTrace();
+    }
+
+    @Override
+    public String getLocalizedMessage() {
+        return QuestService.instance().getLocalizedText(node, params);
     }
 
     public static LocalizedException of(String node, Object... params) {
