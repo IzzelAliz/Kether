@@ -91,6 +91,10 @@ public interface QuestContext {
 
         void set(String name, Object value);
 
+        void remove(String name);
+
+        void clear();
+
         <T> void set(String name, ParsedAction<T> owner, CompletableFuture<T> future);
 
         Set<String> keys();

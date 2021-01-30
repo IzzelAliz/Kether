@@ -9,13 +9,19 @@ import java.util.function.BiFunction;
 
 public interface QuestRegistry {
 
+    void registerAction(String namespace, String id, QuestActionParser parser);
+
     void registerAction(String id, QuestActionParser parser);
 
     <T> void registerPersistentDataType(String id, Class<T> clazz, KetherSerializer<T> serializer);
 
-    void registerContextStringProcessor(String id, BiFunction<QuestContext, String, String> processor);
+    void registerContextStringProcessor(String id, BiFunction<QuestContext.Frame, String, String> processor);
+
+    Collection<String> getRegisteredActions(String namespace);
 
     Collection<String> getRegisteredActions();
+
+    Optional<QuestActionParser> getParser(String namespace, String id);
 
     Optional<QuestActionParser> getParser(String id);
 

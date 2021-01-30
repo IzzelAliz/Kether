@@ -10,21 +10,26 @@ import io.izzel.kether.common.api.QuestService;
 import io.izzel.kether.common.api.data.VarString;
 import io.izzel.kether.common.util.LocalizedException;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.BiFunction;
 
 public class SimpleReader extends AbstractStringReader implements QuestReader {
 
+    private final List<String> namespace;
     private final QuestService<?> service;
     private final SimpleQuestLoader.Parser parser;
 
     public SimpleReader(QuestService<?> service, SimpleQuestLoader.Parser parser) {
+        this(service, parser, new ArrayList<>());
+    }
+
+    public SimpleReader(QuestService<?> service, SimpleQuestLoader.Parser parser, List<String> namespace) {
         super(parser.arr);
         this.service = service;
         this.parser = parser;
         this.index = parser.index;
+        this.namespace = namespace;
+        this.namespace.add("kether");
     }
 
     @Override
@@ -84,13 +89,22 @@ public class SimpleReader extends AbstractStringReader implements QuestReader {
             return (ParsedAction<T>) action;
         } else {
             String element = nextToken();
-            Optional<QuestActionParser> optional = service.getRegistry().getParser(element);
-            if (optional.isPresent()) {
-                QuestAction<T> action = optional.get().resolve(this);
-                return this.wrap(action);
+            String[] domain = element.split("@");
+            if (domain.length == 2) {
+                Optional<QuestActionParser> optional = service.getRegistry().getParser(domain[0], domain[1]);
+                if (optional.isPresent()) {
+                    return this.wrap(optional.get().resolve(this));
+                }
             } else {
-                throw LocalizedException.of("unknown-action", element);
+                Optional<QuestActionParser> optional;
+                for (String name : namespace) {
+                    optional = service.getRegistry().getParser(name, element);
+                    if (optional.isPresent()) {
+                        return wrap(optional.get().resolve(this));
+                    }
+                }
             }
+            throw LocalizedException.of("unknown-action", element);
         }
     }
 

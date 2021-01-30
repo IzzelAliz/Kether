@@ -377,6 +377,16 @@ public abstract class AbstractQuestContext<This extends AbstractQuestContext<Thi
         }
 
         @Override
+        public void remove(String name) {
+            this.map.remove(name);
+        }
+
+        @Override
+        public void clear() {
+            this.map.clear();
+        }
+
+        @Override
         public Set<String> keys() {
             return Collections.unmodifiableSet(this.map.keySet());
         }
