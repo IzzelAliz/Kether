@@ -10,11 +10,13 @@ import java.util.List;
 
 public class ArgTypes {
 
-    public static final ArgType<Integer> INT = new NumberType<>(Coerce::asInteger, "integer");
+    public static final ArgType<Integer> INT = new CoerceType<>(Coerce::asInteger, "integer");
 
-    public static final ArgType<Long> LONG = new NumberType<>(Coerce::asLong, "long");
+    public static final ArgType<Long> LONG = new CoerceType<>(Coerce::asLong, "long");
 
-    public static final ArgType<Double> DOUBLE = new NumberType<>(Coerce::asDouble, "double");
+    public static final ArgType<Double> DOUBLE = new CoerceType<>(Coerce::asDouble, "double");
+
+    public static final ArgType<Boolean> BOOLEAN = new CoerceType<>(Coerce::asBoolean, "boolean");
 
     public static final ArgType<Duration> DURATION = new DurationType();
 

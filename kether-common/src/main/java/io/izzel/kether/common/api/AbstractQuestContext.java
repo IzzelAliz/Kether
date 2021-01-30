@@ -204,6 +204,7 @@ public abstract class AbstractQuestContext<This extends AbstractQuestContext<Thi
         public SimpleNamedFrame(Frame parent, List<Frame> frames, VarTable varTable, String name) {
             super(parent, frames, varTable);
             this.name = name;
+            setNext(quest.getBlock(name).orElseThrow(IllegalArgumentException::new));
         }
 
         @Override

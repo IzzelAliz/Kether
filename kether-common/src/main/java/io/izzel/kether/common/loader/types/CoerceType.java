@@ -7,12 +7,12 @@ import io.izzel.kether.common.util.LocalizedException;
 import java.util.Optional;
 import java.util.function.Function;
 
-final class NumberType<T extends Number> implements ArgType<T> {
+final class CoerceType<T> implements ArgType<T> {
 
     private final Function<Object, Optional<T>> function;
     private final String type;
 
-    NumberType(Function<Object, Optional<T>> function, String type) {
+    CoerceType(Function<Object, Optional<T>> function, String type) {
         this.function = function;
         this.type = type;
     }
