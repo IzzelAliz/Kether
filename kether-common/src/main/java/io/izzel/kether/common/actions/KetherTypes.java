@@ -29,7 +29,7 @@ public class KetherTypes {
         registry.registerAction("any", AnyAction.parser(service));
         registry.registerAction("not", NotAction.parser(service));
         registry.registerAction("get", GetAction.parser());
-        registry.registerAction("set", SetAction.parser());
+        registry.registerAction("set", SetAction.parser(service));
 
         registry.registerPersistentDataType("exit_status", ExitStatus.class, new ExitStatus.Serializer());
     }
