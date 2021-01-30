@@ -89,7 +89,7 @@ public class SimpleReader extends AbstractStringReader implements QuestReader {
             return (ParsedAction<T>) action;
         } else {
             String element = nextToken();
-            String[] domain = element.split("@");
+            String[] domain = element.split(":");
             if (domain.length == 2) {
                 Optional<QuestActionParser> optional = service.getRegistry().getParser(domain[0], domain[1]);
                 if (optional.isPresent()) {
