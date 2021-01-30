@@ -1,6 +1,8 @@
 package io.izzel.kether.common.loader;
 
 import com.google.common.collect.ImmutableMap;
+import io.izzel.kether.common.actions.GetAction;
+import io.izzel.kether.common.actions.LiteralAction;
 import io.izzel.kether.common.api.ActionProperties;
 import io.izzel.kether.common.api.ParsedAction;
 import io.izzel.kether.common.api.QuestAction;
@@ -77,19 +79,31 @@ public class SimpleReader extends AbstractStringReader implements QuestReader {
     @Override
     @SuppressWarnings("unchecked")
     public <T> ParsedAction<T> nextAction() {
-        if (hasNext() && peek() == '{') {
-            parser.index = this.index;
-            ParsedAction<?> action = nextAnonAction();
-            this.index = parser.index;
-            return (ParsedAction<T>) action;
-        } else {
-            String element = nextToken();
-            Optional<QuestActionParser> optional = service.getRegistry().getParser(element);
-            if (optional.isPresent()) {
-                QuestAction<T> action = optional.get().resolve(this);
-                return this.wrap(action);
-            } else {
-                throw LocalizedException.of("unknown-action", element);
+        skipBlank();
+        switch (peek()) {
+            case '{': {
+                parser.index = this.index;
+                ParsedAction<?> action = nextAnonAction();
+                this.index = parser.index;
+                return (ParsedAction<T>) action;
+            }
+            case '&': {
+                skip(1);
+                return wrap(new GetAction<>(nextToken()));
+            }
+            case '*': {
+                skip(1);
+                return wrap(new LiteralAction<>(nextToken()));
+            }
+            default: {
+                String element = nextToken();
+                Optional<QuestActionParser> optional = service.getRegistry().getParser(element);
+                if (optional.isPresent()) {
+                    QuestAction<T> action = optional.get().resolve(this);
+                    return this.wrap(action);
+                } else {
+                    throw LocalizedException.of("unknown-action", element);
+                }
             }
         }
     }
