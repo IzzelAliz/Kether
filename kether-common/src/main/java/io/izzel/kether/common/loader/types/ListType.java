@@ -23,6 +23,7 @@ final class ListType<T> implements ArgType<List<T>> {
             list.add(reader.next(elementType));
         }
         list.trimToSize();
+        reader.expect("]");
         return list;
     }
 }
