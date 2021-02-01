@@ -1,4 +1,4 @@
-package io.izzel.kether.common.api.storage;
+package io.izzel.kether.common.persistent.storage;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;

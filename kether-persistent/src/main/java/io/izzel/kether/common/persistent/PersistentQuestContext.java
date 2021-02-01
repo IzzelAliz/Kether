@@ -1,4 +1,4 @@
-package io.izzel.kether.common.api.persistent;
+package io.izzel.kether.common.persistent;
 
 import io.izzel.kether.common.api.AbstractQuestContext;
 import io.izzel.kether.common.api.Quest;

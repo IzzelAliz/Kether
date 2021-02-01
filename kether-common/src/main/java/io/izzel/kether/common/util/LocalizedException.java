@@ -27,7 +27,7 @@ public class LocalizedException extends RuntimeException {
 
     @Override
     public String getLocalizedMessage() {
-        return QuestService.instance().getLocalizedText("load-error." + node, params);
+        return QuestService.instance().getLocalizedText(node, params);
     }
 
     public Stream<LocalizedException> stream() {
@@ -66,7 +66,9 @@ public class LocalizedException extends RuntimeException {
 
         @Override
         public String getLocalizedMessage() {
-            return stream().map(LocalizedException::getLocalizedMessage)
+            return stream()
+                .flatMap(LocalizedException::stream)
+                .map(LocalizedException::getLocalizedMessage)
                 .collect(Collectors.joining("\n"));
         }
 

@@ -1,4 +1,6 @@
-package io.izzel.kether.common.api;
+package io.izzel.kether.common.persistent;
+
+import io.izzel.kether.common.api.QuestContext;
 
 import java.util.Collection;
 import java.util.Optional;

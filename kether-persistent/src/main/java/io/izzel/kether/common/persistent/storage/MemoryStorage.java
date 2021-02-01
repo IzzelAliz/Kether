@@ -1,7 +1,7 @@
-package io.izzel.kether.common.api.storage;
+package io.izzel.kether.common.persistent.storage;
 
 import io.izzel.kether.common.api.QuestContext;
-import io.izzel.kether.common.api.QuestStorage;
+import io.izzel.kether.common.persistent.QuestStorage;
 
 import java.util.Collection;
 import java.util.Map;

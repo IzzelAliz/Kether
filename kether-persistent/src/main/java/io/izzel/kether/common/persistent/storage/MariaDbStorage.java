@@ -1,4 +1,4 @@
-package io.izzel.kether.common.api.storage;
+package io.izzel.kether.common.persistent.storage;
 
 import io.izzel.kether.common.api.QuestService;
 

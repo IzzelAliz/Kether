@@ -1,8 +1,8 @@
-package io.izzel.kether.common.api.storage;
+package io.izzel.kether.common.persistent.storage;
 
 import io.izzel.kether.common.api.QuestContext;
 import io.izzel.kether.common.api.QuestService;
-import io.izzel.kether.common.api.QuestStorage;
+import io.izzel.kether.common.persistent.QuestStorage;
 import org.yaml.snakeyaml.Yaml;
 
 import java.util.ArrayList;

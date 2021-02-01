@@ -1,7 +1,7 @@
-package io.izzel.kether.common.api.storage;
+package io.izzel.kether.common.persistent.storage;
 
-import io.izzel.kether.common.api.persistent.KetherSerializer;
 import io.izzel.kether.common.api.QuestService;
+import io.izzel.kether.common.persistent.serializer.KetherSerializer;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.representer.Representer;
 

@@ -1,4 +1,4 @@
-package io.izzel.kether.common.api.persistent;
+package io.izzel.kether.common.persistent.serializer;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
