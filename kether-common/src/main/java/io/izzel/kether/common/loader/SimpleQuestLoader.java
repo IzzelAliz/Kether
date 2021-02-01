@@ -92,9 +92,9 @@ public class SimpleQuestLoader implements QuestLoader {
                 return list;
             } catch (Exception e) {
                 throw LoadError.BLOCK_ERROR.create(this.currentBlock,
-                    lineOf(this.arr, reader.getMark()),
-                    new String(this.arr, reader.getMark(), reader.getIndex()).trim())
-                    .then(e instanceof LocalizedException ? (LocalizedException) e : LoadError.UNHANDLED.create(e));
+                         lineOf(this.arr, reader.getMark()),
+                        new String(this.arr, reader.getMark(), Math.max(this.arr.length, reader.getIndex())).trim())
+                        .then(e instanceof LocalizedException ? (LocalizedException) e : LoadError.UNHANDLED.create(e));
             }
         }
 

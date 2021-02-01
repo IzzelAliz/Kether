@@ -11,10 +11,7 @@ import io.izzel.kether.common.api.QuestContext;
 import io.izzel.kether.common.api.QuestService;
 import io.izzel.kether.common.api.data.VarString;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.BiFunction;
 
 public class SimpleReader extends AbstractStringReader implements QuestReader {
@@ -28,7 +25,7 @@ public class SimpleReader extends AbstractStringReader implements QuestReader {
         this.service = service;
         this.parser = parser;
         this.index = parser.index;
-        this.namespace = namespace;
+        this.namespace = new ArrayList<>(namespace);
         this.namespace.add("kether");
     }
 

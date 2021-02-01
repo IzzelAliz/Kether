@@ -5,6 +5,7 @@ import io.izzel.kether.common.util.LocalizedException;
 import java.util.Locale;
 
 public enum LoadError {
+
     STRING_NOT_CLOSE,
     NOT_MATCH,
     UNKNOWN_ACTION,
@@ -14,6 +15,6 @@ public enum LoadError {
     UNHANDLED;
 
     public LocalizedException create(Object... args) {
-        return LocalizedException.of("load-error." + name().toLowerCase(Locale.ROOT), args);
+        return LocalizedException.of("load-error." + name().toLowerCase().replace("_", "-"), args);
     }
 }
