@@ -67,7 +67,6 @@ public class LocalizedException extends RuntimeException {
         @Override
         public String getLocalizedMessage() {
             return stream()
-                .flatMap(LocalizedException::stream)
                 .map(LocalizedException::getLocalizedMessage)
                 .collect(Collectors.joining("\n"));
         }

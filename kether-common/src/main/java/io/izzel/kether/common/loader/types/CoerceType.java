@@ -20,6 +20,6 @@ final class CoerceType<T> implements ArgType<T> {
     @Override
     public T read(QuestReader reader) throws LocalizedException {
         String token = reader.nextToken();
-        return function.apply(token).orElseThrow(LocalizedException.supply("not-" + type, token));
+        return function.apply(token).orElseThrow(LocalizedException.supply("not_" + type, token));
     }
 }
