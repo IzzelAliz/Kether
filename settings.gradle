@@ -1,5 +1,5 @@
 rootProject.name = 'kether'
 include 'kether-common'
 // include 'kether-bukkit'
-include 'kether-persistent'
+// include 'kether-persistent'
 
