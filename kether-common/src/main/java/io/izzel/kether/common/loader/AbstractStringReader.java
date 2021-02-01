@@ -60,6 +60,9 @@ public abstract class AbstractStringReader {
 
     protected void skip(int n) {
         index += n;
+        if (index > arr.length) {
+            throw LoadError.EOF.create();
+        }
     }
 
     protected void skipBlank() {

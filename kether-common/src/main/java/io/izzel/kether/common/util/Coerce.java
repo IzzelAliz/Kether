@@ -207,7 +207,7 @@ public final class Coerce {
         } else if (obj instanceof Byte) {
             return Optional.of((Byte) obj != 0);
         }
-        return Optional.empty();
+        return Optional.of(toBoolean(obj));
     }
 
     /**

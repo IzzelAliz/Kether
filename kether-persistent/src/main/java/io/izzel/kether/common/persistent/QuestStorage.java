@@ -20,4 +20,5 @@ public interface QuestStorage {
 
     void discardContext(String playerIdentifier);
 
+    QuestTableStore getTableStore();
 }

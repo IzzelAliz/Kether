@@ -44,10 +44,10 @@ public class SimpleQuestLoader implements QuestLoader {
 
     public static class Parser extends AbstractStringReader {
 
-        private final Map<String, Quest.Block> blocks = Maps.newHashMap();
-        private final QuestService<?> service;
-        private final List<String> namespace;
-        private String currentBlock;
+        protected final Map<String, Quest.Block> blocks = Maps.newHashMap();
+        protected final QuestService<?> service;
+        protected final List<String> namespace;
+        protected String currentBlock;
 
         public Parser(char[] content, QuestService<?> service, List<String> namespace) {
             super(content);
@@ -92,9 +92,9 @@ public class SimpleQuestLoader implements QuestLoader {
                 return list;
             } catch (Exception e) {
                 throw LoadError.BLOCK_ERROR.create(this.currentBlock,
-                         lineOf(this.arr, reader.getMark()),
-                        new String(this.arr, reader.getMark(), Math.max(this.arr.length, reader.getIndex())).trim())
-                        .then(e instanceof LocalizedException ? (LocalizedException) e : LoadError.UNHANDLED.create(e));
+                    lineOf(this.arr, reader.getMark()),
+                    new String(this.arr, reader.getMark(), Math.max(this.arr.length, reader.getIndex())).trim())
+                    .then(e instanceof LocalizedException ? (LocalizedException) e : LoadError.UNHANDLED.create(e));
             }
         }
 
