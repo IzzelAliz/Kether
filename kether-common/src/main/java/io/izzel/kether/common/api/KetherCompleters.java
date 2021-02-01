@@ -1,8 +1,6 @@
-package io.izzel.kether.common.api.persistent;
+package io.izzel.kether.common.api;
 
 import com.google.common.collect.ImmutableList;
-import io.izzel.kether.common.api.QuestActionParser;
-import io.izzel.kether.common.api.QuestService;
 
 import java.util.ArrayList;
 import java.util.LinkedList;

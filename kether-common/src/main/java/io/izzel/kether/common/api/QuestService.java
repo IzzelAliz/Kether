@@ -33,8 +33,6 @@ public interface QuestService<CTX extends QuestContext> {
 
     String getLocalizedText(String node, Object... params);
 
-    QuestStorage getStorage();
-
     @SuppressWarnings("unchecked")
     static <C extends QuestContext> QuestService<C> instance() {
         return (QuestService<C>) ServiceHolder.INSTANCE;

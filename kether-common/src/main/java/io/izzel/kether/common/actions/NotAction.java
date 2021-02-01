@@ -1,7 +1,7 @@
 package io.izzel.kether.common.actions;
 
 import io.izzel.kether.common.api.*;
-import io.izzel.kether.common.api.persistent.KetherCompleters;
+import io.izzel.kether.common.api.KetherCompleters;
 import io.izzel.kether.common.loader.types.ArgTypes;
 import io.izzel.kether.common.util.Coerce;
 

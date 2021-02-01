@@ -9,27 +9,29 @@ import io.izzel.kether.common.api.QuestService;
 import io.izzel.kether.common.api.data.SimpleQuest;
 import io.izzel.kether.common.util.LocalizedException;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 public class SimpleQuestLoader implements QuestLoader {
 
     @Override
-    public <C extends QuestContext> Quest load(QuestService<C> service, Logger logger, String id, byte[] bytes) throws LocalizedException {
-        return load(service, logger, id, bytes, new ArrayList<>());
+    public <C extends QuestContext> Quest load(QuestService<C> service, String id, Path path, List<String> namespace) throws IOException {
+        return load(service, id, Files.readAllBytes(path), namespace);
     }
 
     @Override
-    public <CTX extends QuestContext> Quest load(QuestService<CTX> service, Logger logger, String id, byte[] bytes, List<String> namespace) throws LocalizedException {
+    public <CTX extends QuestContext> Quest load(QuestService<CTX> service, String id, byte[] bytes, List<String> namespace) throws LocalizedException {
         String content = new String(bytes, StandardCharsets.UTF_8);
-        try {
-            return new Parser(content.toCharArray(), service, logger).parse(id);
-        } catch (Exception e) {
-            throw LocalizedException.of("load-error.fail", id);
-        }
+        return newParser(content.toCharArray(), service, namespace).parse(id);
+    }
+
+    protected Parser newParser(char[] content, QuestService<?> service, List<String> namespace) {
+        return new Parser(content, service, namespace);
     }
 
     private static int lineOf(char[] chars, int index) {
@@ -40,17 +42,17 @@ public class SimpleQuestLoader implements QuestLoader {
         return line;
     }
 
-    protected static class Parser extends AbstractStringReader {
+    public static class Parser extends AbstractStringReader {
 
         private final Map<String, Quest.Block> blocks = Maps.newHashMap();
         private final QuestService<?> service;
-        private final Logger logger;
+        private final List<String> namespace;
         private String currentBlock;
 
-        public Parser(char[] content, QuestService<?> service, Logger logger) {
+        public Parser(char[] content, QuestService<?> service, List<String> namespace) {
             super(content);
             this.service = service;
-            this.logger = logger;
+            this.namespace = namespace;
         }
 
         protected ParsedAction<?> readAnonymousAction() {
@@ -66,11 +68,15 @@ public class SimpleQuestLoader implements QuestLoader {
             }
         }
 
+        protected SimpleReader newReader(QuestService<?> service, List<String> namespace) {
+            return new SimpleReader(service, this, namespace);
+        }
+
         public List<ParsedAction<?>> readActions() {
             skipBlank();
             boolean batch = peek() == '{';
             if (batch) skip(1);
-            SimpleReader reader = new SimpleReader(service, this);
+            SimpleReader reader = newReader(service, namespace);
             try {
                 ArrayList<ParsedAction<?>> list = new ArrayList<>();
                 while ((batch && reader.hasNext()) || list.isEmpty()) {
@@ -85,15 +91,10 @@ public class SimpleQuestLoader implements QuestLoader {
                 }
                 return list;
             } catch (Exception e) {
-                logger.warning(service.getLocalizedText("load-error.block-exception",
-                    this.currentBlock,
+                throw LoadError.BLOCK_ERROR.create(this.currentBlock,
                     lineOf(this.arr, reader.getMark()),
-                    e instanceof LocalizedException
-                        ? service.getLocalizedText(((LocalizedException) e).getNode(), ((LocalizedException) e).getParams())
-                        : e.toString()
-                ));
-                logger.warning(new String(this.arr, reader.getMark(), reader.getIndex()).trim());
-                throw e;
+                    new String(this.arr, reader.getMark(), reader.getIndex()).trim())
+                    .then(e instanceof LocalizedException ? (LocalizedException) e : LoadError.UNHANDLED.create(e));
             }
         }
 

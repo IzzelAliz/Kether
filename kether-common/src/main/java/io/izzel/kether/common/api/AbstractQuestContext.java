@@ -96,7 +96,6 @@ public abstract class AbstractQuestContext<This extends AbstractQuestContext<Thi
         }
     }
 
-    @SuppressWarnings("NullableProblems")
     private class QuestExecutor implements Executor {
 
         private final Executor actual = createExecutor();

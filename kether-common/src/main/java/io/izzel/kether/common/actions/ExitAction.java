@@ -1,11 +1,12 @@
 package io.izzel.kether.common.actions;
 
-import io.izzel.kether.common.api.data.ExitStatus;
-import io.izzel.kether.common.api.persistent.KetherCompleters;
+import io.izzel.kether.common.api.KetherCompleters;
 import io.izzel.kether.common.api.QuestAction;
 import io.izzel.kether.common.api.QuestActionParser;
 import io.izzel.kether.common.api.QuestContext;
-import io.izzel.kether.common.util.LocalizedException;
+import io.izzel.kether.common.api.data.ExitStatus;
+import io.izzel.kether.common.loader.LoadError;
+import io.izzel.kether.common.loader.types.ArgTypes;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -39,18 +40,18 @@ final class ExitAction extends QuestAction<Void> {
 
     public static QuestActionParser parser() {
         return QuestActionParser.of(
-            resolver -> {
-                String element = resolver.nextToken();
+            reader -> {
+                String element = reader.nextToken();
                 switch (element) {
                     case "success":
                         return new ExitAction(false, false, 0);
                     case "pause":
                         return new ExitAction(true, false, 0);
                     case "cooldown":
-                        long l = resolver.nextLong();
+                        long l = reader.next(ArgTypes.DURATION).toMillis();
                         return new ExitAction(false, true, l);
                     default:
-                        throw LocalizedException.of("not-match", "success|pause|cooldown", element);
+                        throw LoadError.NOT_MATCH.create("success|pause|cooldown", element);
                 }
             },
             KetherCompleters.firstParsing(

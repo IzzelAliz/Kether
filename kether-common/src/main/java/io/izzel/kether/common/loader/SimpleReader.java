@@ -3,22 +3,25 @@ package io.izzel.kether.common.loader;
 import com.google.common.collect.ImmutableMap;
 import io.izzel.kether.common.actions.GetAction;
 import io.izzel.kether.common.actions.LiteralAction;
-import io.izzel.kether.common.api.*;
+import io.izzel.kether.common.api.ActionProperties;
+import io.izzel.kether.common.api.ParsedAction;
+import io.izzel.kether.common.api.QuestAction;
+import io.izzel.kether.common.api.QuestActionParser;
+import io.izzel.kether.common.api.QuestContext;
+import io.izzel.kether.common.api.QuestService;
 import io.izzel.kether.common.api.data.VarString;
-import io.izzel.kether.common.util.LocalizedException;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.BiFunction;
 
 public class SimpleReader extends AbstractStringReader implements QuestReader {
 
-    private final List<String> namespace;
-    private final QuestService<?> service;
-    private final SimpleQuestLoader.Parser parser;
-
-    public SimpleReader(QuestService<?> service, SimpleQuestLoader.Parser parser) {
-        this(service, parser, new ArrayList<>());
-    }
+    protected final List<String> namespace;
+    protected final QuestService<?> service;
+    protected final SimpleQuestLoader.Parser parser;
 
     public SimpleReader(QuestService<?> service, SimpleQuestLoader.Parser parser, List<String> namespace) {
         super(parser.arr);
@@ -46,7 +49,7 @@ public class SimpleReader extends AbstractStringReader implements QuestReader {
                     else met = 0;
                 }
             }
-            if (met < cnt) throw LocalizedException.of("string-not-close");
+            if (met < cnt) throw LoadError.STRING_NOT_CLOSE.create();
             String ret = new String(arr, index, i - cnt - index);
             index = i;
             return ret;
@@ -62,7 +65,7 @@ public class SimpleReader extends AbstractStringReader implements QuestReader {
             String[] ids = nextToken().split(",");
             Map<String, BiFunction<QuestContext.Frame, String, String>> map = new HashMap<>();
             for (String id : ids) {
-                Optional<BiFunction<QuestContext.Frame, String, String>> optional = service.getRegistry().getContextStringProcessor(id);
+                Optional<BiFunction<QuestContext.Frame, String, String>> optional = service.getRegistry().getStringProcessor(id);
                 optional.ifPresent(f -> map.put(id, f));
             }
             return new VarString(str, map);
@@ -101,7 +104,7 @@ public class SimpleReader extends AbstractStringReader implements QuestReader {
                 if (optional.isPresent()) {
                     return wrap(optional.get().resolve(this));
                 }
-                throw LocalizedException.of("unknown-action", element);
+                throw LoadError.UNKNOWN_ACTION.create(element);
             }
         }
     }

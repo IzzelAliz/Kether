@@ -30,12 +30,7 @@ public interface QuestReader {
 
     <T> ParsedAction<T> nextAction();
 
-    default void expect(String value) {
-        String element = nextToken();
-        if (!element.equals(value)) {
-            throw LocalizedException.of("not-match", value, element);
-        }
-    }
+    void expect(String value);
 
     default int nextInt() {
         return next(ArgTypes.INT);

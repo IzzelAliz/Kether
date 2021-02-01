@@ -1,6 +1,7 @@
 package io.izzel.kether.common.loader.types;
 
 import io.izzel.kether.common.loader.ArgType;
+import io.izzel.kether.common.loader.LoadError;
 import io.izzel.kether.common.loader.QuestReader;
 import io.izzel.kether.common.util.LocalizedException;
 
@@ -31,7 +32,7 @@ final class DurationType implements ArgType<Duration> {
         try {
             return Duration.parse(s);
         } catch (Exception e) {
-            throw LocalizedException.of("not-duration", s);
+            throw LoadError.NOT_DURATION.create(s);
         }
     }
 }

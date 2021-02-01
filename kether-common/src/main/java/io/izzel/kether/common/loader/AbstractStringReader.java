@@ -1,7 +1,5 @@
 package io.izzel.kether.common.loader;
 
-import io.izzel.kether.common.util.LocalizedException;
-
 public abstract class AbstractStringReader {
 
     protected final char[] arr;
@@ -13,11 +11,19 @@ public abstract class AbstractStringReader {
     }
 
     public char peek() {
-        return arr[index];
+        if (index < arr.length) {
+            return arr[index];
+        } else {
+            throw LoadError.EOF.create();
+        }
     }
 
     public char peek(int n) {
-        return arr[index + n];
+        if (index + n < arr.length) {
+            return arr[index + n];
+        } else {
+            throw LoadError.EOF.create();
+        }
     }
 
     public int getIndex() {
@@ -43,7 +49,7 @@ public abstract class AbstractStringReader {
 
     public String nextToken() {
         if (!hasNext()) {
-            failExpect("*", "EOF");
+            throw LoadError.EOF.create();
         }
         int begin = index;
         while (index < arr.length && !Character.isWhitespace(arr[index])) {
@@ -54,6 +60,9 @@ public abstract class AbstractStringReader {
 
     protected void skip(int n) {
         index += n;
+        if (index >= arr.length) {
+            throw LoadError.EOF.create();
+        }
     }
 
     protected void skipBlank() {
@@ -78,6 +87,6 @@ public abstract class AbstractStringReader {
     }
 
     protected void failExpect(String expect, String got) {
-        throw LocalizedException.of("not-match", expect, got);
+        throw LoadError.NOT_MATCH.create(expect, got);
     }
 }

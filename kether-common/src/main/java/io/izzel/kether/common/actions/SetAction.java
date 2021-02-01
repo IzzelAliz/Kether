@@ -2,7 +2,7 @@ package io.izzel.kether.common.actions;
 
 import io.izzel.kether.common.api.ParsedAction;
 import io.izzel.kether.common.api.QuestService;
-import io.izzel.kether.common.api.persistent.KetherCompleters;
+import io.izzel.kether.common.api.KetherCompleters;
 import io.izzel.kether.common.api.QuestAction;
 import io.izzel.kether.common.api.QuestActionParser;
 import io.izzel.kether.common.api.QuestContext;

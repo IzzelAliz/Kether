@@ -1,16 +1,16 @@
 package io.izzel.kether.common.api;
 
-import io.izzel.kether.common.api.persistent.KetherSerializer;
-
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.BiFunction;
 
 public class DefaultRegistry implements QuestRegistry {
 
     private final Map<String, Map<String, QuestActionParser>> parsers = new HashMap<>();
-    private final Map<String, KetherSerializer<?>> serializersById = new HashMap<>();
-    private final Map<Class<?>, KetherSerializer<?>> serializersByClass = new HashMap<>();
-    private final Map<String, Class<?>> idToClass = new HashMap<>();
     private final Map<String, BiFunction<QuestContext.Frame, String, String>> processors = new HashMap<>();
 
     @Override
@@ -24,14 +24,7 @@ public class DefaultRegistry implements QuestRegistry {
     }
 
     @Override
-    public <T> void registerPersistentDataType(String id, Class<T> clazz, KetherSerializer<T> serializer) {
-        serializersById.put(id, serializer);
-        serializersByClass.put(clazz, serializer);
-        idToClass.put(id, clazz);
-    }
-
-    @Override
-    public void registerContextStringProcessor(String id, BiFunction<QuestContext.Frame, String, String> processor) {
+    public void registerStringProcessor(String id, BiFunction<QuestContext.Frame, String, String> processor) {
         processors.put(id, processor);
     }
 
@@ -73,29 +66,7 @@ public class DefaultRegistry implements QuestRegistry {
     }
 
     @Override
-    public Map<String, KetherSerializer<?>> getIdSerializers() {
-        return Collections.unmodifiableMap(serializersById);
-    }
-
-    @Override
-    public Optional<Class<?>> getSerializedClass(String id) {
-        return Optional.ofNullable(idToClass.get(id));
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T> Optional<KetherSerializer<T>> getPersistentDataSerializer(Class<T> cl) {
-        return Optional.ofNullable((KetherSerializer<T>) serializersByClass.get(cl));
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T> Optional<KetherSerializer<T>> getPersistentDataSerializer(String id) {
-        return Optional.ofNullable((KetherSerializer<T>) serializersById.get(id));
-    }
-
-    @Override
-    public Optional<BiFunction<QuestContext.Frame, String, String>> getContextStringProcessor(String id) {
+    public Optional<BiFunction<QuestContext.Frame, String, String>> getStringProcessor(String id) {
         return Optional.ofNullable(processors.get(id));
     }
 }

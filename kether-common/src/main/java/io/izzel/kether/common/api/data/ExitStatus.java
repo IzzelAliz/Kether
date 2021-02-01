@@ -1,12 +1,6 @@
 package io.izzel.kether.common.api.data;
 
-import io.izzel.kether.common.api.persistent.KetherSerializer;
-import io.izzel.kether.common.util.Coerce;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 public class ExitStatus {
 
@@ -68,25 +62,5 @@ public class ExitStatus {
 
     public static ExitStatus cooldown(long timeout) {
         return new ExitStatus(true, true, System.currentTimeMillis() + timeout);
-    }
-
-    public static class Serializer implements KetherSerializer<ExitStatus> {
-
-        @Override
-        public Map<String, Object> serialize(ExitStatus instance) {
-            Map<String, Object> map = new LinkedHashMap<>();
-            map.put("running", instance.running);
-            map.put("waiting", instance.waiting);
-            map.put("startTime", instance.startTime);
-            return map;
-        }
-
-        @Override
-        public Optional<ExitStatus> deserialize(Map<String, Object> map) {
-            boolean running = Coerce.toBoolean(map.get("running"));
-            boolean waiting = Coerce.toBoolean(map.get("waiting"));
-            long startTime = Coerce.toLong(map.get("startTime"));
-            return Optional.of(new ExitStatus(running, waiting, startTime));
-        }
     }
 }
