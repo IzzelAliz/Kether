@@ -56,10 +56,14 @@ public class SimpleQuestLoader implements QuestLoader {
         }
 
         protected ParsedAction<?> readAnonymousAction() {
+            String lastBlock = this.currentBlock;
+            String name = lastBlock + "_anon_" + System.nanoTime();
+            this.currentBlock = name;
             List<ParsedAction<?>> actions = readActions();
+            this.currentBlock = lastBlock;
             if (!actions.isEmpty()) {
                 ParsedAction<?> head = actions.get(0);
-                Quest.Block block = new SimpleQuest.SimpleBlock("anon_" + System.nanoTime(), actions);
+                Quest.Block block = new SimpleQuest.SimpleBlock(name, actions);
                 this.blocks.put(block.getLabel(), block);
                 head.set(ActionProperties.BLOCK, block.getLabel());
                 return head;
