@@ -35,7 +35,7 @@ public class SimpleReader extends AbstractStringReader implements QuestReader {
         switch (peek()) {
             case '"': {
                 int cnt = 0;
-                while (hasNext() && peek() == '"') {
+                while (peek() == '"') {
                     cnt++;
                     skip(1);
                 }
@@ -48,7 +48,7 @@ public class SimpleReader extends AbstractStringReader implements QuestReader {
                         else met = 0;
                     }
                 }
-                if (met < cnt) throw LoadError.STRING_NOT_CLOSE.create();
+                if (met < cnt) throw LoadError.STRING_NOT_CLOSE.create(cnt);
                 String ret = new String(arr, index, i - cnt - index);
                 index = i;
                 return ret;

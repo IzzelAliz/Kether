@@ -99,10 +99,13 @@ public class SimpleQuestLoader implements QuestLoader {
                 }
                 return list;
             } catch (Exception e) {
-                throw LoadError.BLOCK_ERROR.create(this.currentBlock,
-                    lineOf(this.arr, reader.getMark()),
-                    new String(this.arr, reader.getMark(), Math.min(this.arr.length, reader.getIndex()) - reader.getMark()).trim())
-                    .then(e instanceof LocalizedException ? (LocalizedException) e : LoadError.UNHANDLED.create(e));
+                if (e instanceof LocalizedException) {
+                    String source = new String(this.arr, reader.getMark(), Math.min(this.arr.length, reader.getIndex()) - reader.getMark()).trim();
+                    throw LoadError.BLOCK_ERROR.create(this.currentBlock, lineOf(this.arr, reader.getMark()), source).then((LocalizedException) e);
+                } else {
+                    e.printStackTrace();
+                    throw LoadError.UNHANDLED.create(e);
+                }
             }
         }
 
