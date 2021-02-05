@@ -31,27 +31,41 @@ public class SimpleReader extends AbstractStringReader implements QuestReader {
 
     @Override
     public String nextToken() {
-        if (hasNext() && peek() == '"') {
-            int cnt = 0;
-            while (hasNext() && peek() == '"') {
-                cnt++;
-                skip(1);
-            }
-            int met = 0;
-            int i;
-            for (i = index; i < arr.length; ++i) {
-                if (arr[i] == '"') met++;
-                else {
-                    if (met >= cnt) break;
-                    else met = 0;
+        skipBlank();
+        switch (peek()) {
+            case '"': {
+                int cnt = 0;
+                while (hasNext() && peek() == '"') {
+                    cnt++;
+                    skip(1);
                 }
+                int met = 0;
+                int i;
+                for (i = index; i < arr.length; ++i) {
+                    if (arr[i] == '"') met++;
+                    else {
+                        if (met >= cnt) break;
+                        else met = 0;
+                    }
+                }
+                if (met < cnt) throw LoadError.STRING_NOT_CLOSE.create();
+                String ret = new String(arr, index, i - cnt - index);
+                index = i;
+                return ret;
             }
-            if (met < cnt) throw LoadError.STRING_NOT_CLOSE.create();
-            String ret = new String(arr, index, i - cnt - index);
-            index = i;
-            return ret;
-        } else {
-            return super.nextToken();
+            case '\'': {
+                skip(1);
+                int i = index;
+                while (peek() != '\'') {
+                    skip(1);
+                }
+                String ret = new String(arr, i, index - i);
+                skip(1);
+                return ret;
+            }
+            default: {
+                return super.nextToken();
+            }
         }
     }
 
@@ -89,21 +103,27 @@ public class SimpleReader extends AbstractStringReader implements QuestReader {
             }
             case '&': {
                 skip(1);
+                beforeParse();
                 return wrap(new GetAction<>(nextToken()));
             }
             case '*': {
                 skip(1);
+                beforeParse();
                 return wrap(new LiteralAction<>(nextToken()));
             }
             default: {
                 String element = nextToken();
                 Optional<QuestActionParser> optional = service.getRegistry().getParser(element, namespace);
                 if (optional.isPresent()) {
+                    beforeParse();
                     return wrap(optional.get().resolve(this));
                 }
                 throw LoadError.UNKNOWN_ACTION.create(element);
             }
         }
+    }
+
+    protected void beforeParse() {
     }
 
     protected <T> ParsedAction<T> wrap(QuestAction<T> action) {

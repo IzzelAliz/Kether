@@ -57,7 +57,7 @@ public class SimpleQuestLoader implements QuestLoader {
 
         protected ParsedAction<?> readAnonymousAction() {
             String lastBlock = this.currentBlock;
-            String name = lastBlock + "_anon_" + System.nanoTime();
+            String name = nextAnonymousBlockName();
             this.currentBlock = name;
             List<ParsedAction<?>> actions = readActions();
             this.currentBlock = lastBlock;
@@ -70,6 +70,10 @@ public class SimpleQuestLoader implements QuestLoader {
             } else {
                 return ParsedAction.noop();
             }
+        }
+
+        protected String nextAnonymousBlockName() {
+            return this.currentBlock + "_anon_" + System.nanoTime();
         }
 
         protected SimpleReader newReader(QuestService<?> service, List<String> namespace) {

@@ -12,10 +12,10 @@ import java.util.List;
 
 public class DiffReader extends SimpleReader {
 
-    private final QuestTableStore.QuestTable questTable;
+    private final QuestTableStore.QuestTable.BlockTable questTable;
     private int lastBegin = -1;
 
-    public DiffReader(QuestService<?> service, RewriteLoader.RewriteParser parser, List<String> namespace, QuestTableStore.QuestTable questTable) {
+    public DiffReader(QuestService<?> service, RewriteLoader.RewriteParser parser, List<String> namespace, QuestTableStore.QuestTable.BlockTable questTable) {
         super(service, parser, namespace);
         this.questTable = questTable;
     }
@@ -45,7 +45,8 @@ public class DiffReader extends SimpleReader {
                     this.questTable.drop(before);
                 }
                 return action;
-            } case '+': {
+            }
+            case '+': {
                 beginRewrite();
                 skip(1);
                 endRewrite();
@@ -57,6 +58,12 @@ public class DiffReader extends SimpleReader {
                 return super.nextAction();
             }
         }
+    }
+
+    @Override
+    protected void beforeParse() {
+        super.beforeParse();
+        this.questTable.pushAction();
     }
 
     @Override

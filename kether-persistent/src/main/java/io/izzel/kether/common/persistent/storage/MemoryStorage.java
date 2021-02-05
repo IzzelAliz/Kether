@@ -1,7 +1,9 @@
 package io.izzel.kether.common.persistent.storage;
 
+import io.izzel.kether.common.api.ParsedAction;
 import io.izzel.kether.common.api.QuestContext;
 import io.izzel.kether.common.persistent.QuestStorage;
+import io.izzel.kether.common.persistent.QuestTableStore;
 
 import java.util.Collection;
 import java.util.Map;
@@ -43,5 +45,30 @@ public class MemoryStorage implements QuestStorage {
     @Override
     public void discardContext(String playerIdentifier) {
         map.remove(playerIdentifier);
+    }
+
+    @Override
+    public QuestTableStore getTableStore() {
+        return id -> block -> new QuestTableStore.QuestTable.BlockTable() {
+            @Override
+            public void pushAction() {
+            }
+
+            @Override
+            public void transferTo(ParsedAction<?> before, ParsedAction<?> after) {
+            }
+
+            @Override
+            public void drop(ParsedAction<?> action) {
+            }
+
+            @Override
+            public void insert(ParsedAction<?> action) {
+            }
+
+            @Override
+            public void assign(ParsedAction<?> action) {
+            }
+        };
     }
 }

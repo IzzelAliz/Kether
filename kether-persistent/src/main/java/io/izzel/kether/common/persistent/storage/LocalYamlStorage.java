@@ -2,8 +2,10 @@ package io.izzel.kether.common.persistent.storage;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
+import io.izzel.kether.common.api.ParsedAction;
 import io.izzel.kether.common.api.QuestContext;
-import io.izzel.kether.common.api.QuestService;
+import io.izzel.kether.common.persistent.PersistentQuestService;
+import io.izzel.kether.common.persistent.QuestTableStore;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
@@ -26,14 +28,16 @@ import java.util.stream.Collectors;
 
 public class LocalYamlStorage extends AbstractStorage {
 
-    private final Path baseDir;
+    private final Path playerData;
+    private final QuestTableStore questTableStore = null;
 
     private List<QuestContext> dirtyContexts = new LinkedList<>();
     private Future<?> saveTask;
 
-    public LocalYamlStorage(QuestService<?> service, Path baseDir) {
+    public LocalYamlStorage(PersistentQuestService<?> service, Path baseDir) {
         super(service);
-        this.baseDir = baseDir;
+        this.playerData = baseDir.resolve("player");
+        // todo this.questTableStore = new YamlQuestTableStore(baseDir.resolve("quest"));
     }
 
     @Override
@@ -44,7 +48,7 @@ public class LocalYamlStorage extends AbstractStorage {
         KetherRepresenter representer = new KetherRepresenter(service);
         representer.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
         this.yaml = new Yaml(new KetherConstructor(service), representer, options);
-        if (Files.notExists(baseDir)) Files.createDirectories(baseDir);
+        if (Files.notExists(playerData)) Files.createDirectories(playerData);
         this.saveTask = this.service.getAsyncExecutor().scheduleWithFixedDelay(this::saveDirty, 5, 5, TimeUnit.MINUTES);
     }
 
@@ -68,7 +72,7 @@ public class LocalYamlStorage extends AbstractStorage {
                     for (Map.Entry<QuestContext, String> entry : map.entrySet()) {
                         QuestContext context = entry.getKey();
                         String dump = entry.getValue();
-                        Path path = this.baseDir.resolve(context.getPlayerIdentifier()).resolve(context.getQuest().getId() + ".yml");
+                        Path path = this.playerData.resolve(context.getPlayerIdentifier()).resolve(context.getQuest().getId() + ".yml");
                         if (Files.notExists(path)) {
                             Files.createDirectories(path.getParent());
                             Files.createFile(path);
@@ -96,7 +100,7 @@ public class LocalYamlStorage extends AbstractStorage {
     protected Collection<String> supplyAll(String playerIdentifier) {
         try {
             ImmutableList.Builder<String> builder = ImmutableList.builder();
-            Iterator<Path> iterator = Files.walk(baseDir.resolve(playerIdentifier)).iterator();
+            Iterator<Path> iterator = Files.walk(playerData.resolve(playerIdentifier)).iterator();
             while (iterator.hasNext()) {
                 Path next = iterator.next();
                 if (next.toString().endsWith(".yml")) {
@@ -108,5 +112,31 @@ public class LocalYamlStorage extends AbstractStorage {
         } catch (IOException e) {
             return ImmutableList.of();
         }
+    }
+
+    @Override
+    public QuestTableStore getTableStore() {
+        // todo return this.questTableStore;
+        return id -> block -> new QuestTableStore.QuestTable.BlockTable() {
+            @Override
+            public void pushAction() {
+            }
+
+            @Override
+            public void transferTo(ParsedAction<?> before, ParsedAction<?> after) {
+            }
+
+            @Override
+            public void drop(ParsedAction<?> action) {
+            }
+
+            @Override
+            public void insert(ParsedAction<?> action) {
+            }
+
+            @Override
+            public void assign(ParsedAction<?> action) {
+            }
+        };
     }
 }

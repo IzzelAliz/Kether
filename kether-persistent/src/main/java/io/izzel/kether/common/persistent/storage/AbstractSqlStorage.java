@@ -2,7 +2,8 @@ package io.izzel.kether.common.persistent.storage;
 
 import com.google.common.collect.ImmutableList;
 import io.izzel.kether.common.api.QuestContext;
-import io.izzel.kether.common.api.QuestService;
+import io.izzel.kether.common.persistent.PersistentQuestService;
+import io.izzel.kether.common.persistent.QuestTableStore;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
@@ -25,7 +26,7 @@ public abstract class AbstractSqlStorage extends AbstractStorage {
 
     private DataSource dataSource;
 
-    public AbstractSqlStorage(QuestService<?> service, Supplier<DataSource> dataSourceSupplier) {
+    public AbstractSqlStorage(PersistentQuestService<?> service, Supplier<DataSource> dataSourceSupplier) {
         super(service);
         this.dataSourceSupplier = dataSourceSupplier;
     }
@@ -98,5 +99,11 @@ public abstract class AbstractSqlStorage extends AbstractStorage {
             e.printStackTrace();
             return ImmutableList.of();
         }
+    }
+
+    @Override
+    public QuestTableStore getTableStore() {
+        // todo
+        return null;
     }
 }

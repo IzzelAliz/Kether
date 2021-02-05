@@ -1,6 +1,6 @@
 package io.izzel.kether.common.persistent.storage;
 
-import io.izzel.kether.common.api.QuestService;
+import io.izzel.kether.common.persistent.PersistentQuestService;
 
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
@@ -11,7 +11,7 @@ import java.util.function.Supplier;
 
 public class MariaDbStorage extends AbstractSqlStorage {
 
-    public MariaDbStorage(QuestService<?> service, Supplier<DataSource> dataSourceSupplier) {
+    public MariaDbStorage(PersistentQuestService<?> service, Supplier<DataSource> dataSourceSupplier) {
         super(service, dataSourceSupplier);
     }
 

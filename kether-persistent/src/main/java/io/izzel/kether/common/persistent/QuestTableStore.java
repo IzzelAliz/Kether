@@ -8,12 +8,19 @@ public interface QuestTableStore {
 
     interface QuestTable {
 
-        void transferTo(ParsedAction<?> before, ParsedAction<?> after);
+        BlockTable inBlock(String block);
 
-        void drop(ParsedAction<?> action);
+        interface BlockTable {
 
-        void insert(ParsedAction<?> action);
+            void pushAction();
 
-        void assign(ParsedAction<?> action);
+            void transferTo(ParsedAction<?> before, ParsedAction<?> after);
+
+            void drop(ParsedAction<?> action);
+
+            void insert(ParsedAction<?> action);
+
+            void assign(ParsedAction<?> action);
+        }
     }
 }

@@ -1,7 +1,7 @@
 package io.izzel.kether.common.persistent.storage;
 
 import io.izzel.kether.common.api.QuestContext;
-import io.izzel.kether.common.api.QuestService;
+import io.izzel.kether.common.persistent.PersistentQuestService;
 import io.izzel.kether.common.persistent.QuestStorage;
 import org.yaml.snakeyaml.Yaml;
 
@@ -15,11 +15,11 @@ import java.util.concurrent.CompletableFuture;
 
 public abstract class AbstractStorage implements QuestStorage {
 
-    protected final QuestService<?> service;
+    protected final PersistentQuestService<?> service;
     protected final Map<String, Map<String, QuestContext>> map = new HashMap<>();
     protected Yaml yaml;
 
-    protected AbstractStorage(QuestService<?> service) {
+    protected AbstractStorage(PersistentQuestService<?> service) {
         this.service = service;
     }
 

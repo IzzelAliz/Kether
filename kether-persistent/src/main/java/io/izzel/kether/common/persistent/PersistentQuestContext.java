@@ -10,5 +10,8 @@ public abstract class PersistentQuestContext<This extends PersistentQuestContext
         super(service, quest, playerIdentifier);
     }
 
-
+    @Override
+    protected Frame createRootFrame() {
+        return super.createRootFrame();
+    }
 }

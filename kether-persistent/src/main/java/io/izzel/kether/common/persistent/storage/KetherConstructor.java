@@ -1,6 +1,6 @@
 package io.izzel.kether.common.persistent.storage;
 
-import io.izzel.kether.common.api.QuestService;
+import io.izzel.kether.common.persistent.PersistentQuestService;
 import io.izzel.kether.common.persistent.serializer.KetherSerializer;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 import org.yaml.snakeyaml.error.YAMLException;
@@ -13,9 +13,9 @@ import java.util.Optional;
 
 final class KetherConstructor extends SafeConstructor {
 
-    private final QuestService<?> service;
+    private final PersistentQuestService<?> service;
 
-    public KetherConstructor(QuestService<?> service) {
+    public KetherConstructor(PersistentQuestService<?> service) {
         this.service = service;
         this.yamlConstructors.put(Tag.MAP, new ConstructKetherType());
     }

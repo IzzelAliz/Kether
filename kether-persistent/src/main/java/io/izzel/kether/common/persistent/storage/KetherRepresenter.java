@@ -1,6 +1,6 @@
 package io.izzel.kether.common.persistent.storage;
 
-import io.izzel.kether.common.api.QuestService;
+import io.izzel.kether.common.persistent.PersistentQuestService;
 import io.izzel.kether.common.persistent.serializer.KetherSerializer;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.representer.Representer;
@@ -10,7 +10,7 @@ import java.util.Map;
 
 final class KetherRepresenter extends Representer {
 
-    public KetherRepresenter(QuestService<?> service) {
+    public KetherRepresenter(PersistentQuestService<?> service) {
         for (Map.Entry<String, KetherSerializer<?>> entry : service.getRegistry().getIdSerializers().entrySet()) {
             Class<?> cl = service.getRegistry().getSerializedClass(entry.getKey()).get();
             RepresentKetherType represent = new RepresentKetherType(entry.getKey(), entry.getValue());
