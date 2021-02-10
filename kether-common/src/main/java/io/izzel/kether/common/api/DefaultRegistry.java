@@ -29,6 +29,21 @@ public class DefaultRegistry implements QuestRegistry {
     }
 
     @Override
+    public void unregisterAction(String id) {
+        unregisterAction("kether", id);
+    }
+
+    @Override
+    public void unregisterAction(String namespace, String id) {
+        Map<String, QuestActionParser> map = parsers.computeIfAbsent(namespace, i -> new HashMap<>());
+        if (id.equals("*")) {
+            map.clear();
+        } else {
+            map.remove(id);
+        }
+    }
+
+    @Override
     public Collection<String> getRegisteredActions(String namespace) {
         Map<String, QuestActionParser> map = parsers.get(namespace);
         return map == null ? Collections.emptyList() : Collections.unmodifiableCollection(map.keySet());
@@ -37,6 +52,11 @@ public class DefaultRegistry implements QuestRegistry {
     @Override
     public Collection<String> getRegisteredActions() {
         return getRegisteredActions("kether");
+    }
+
+    @Override
+    public Collection<String> getRegisteredNamespace() {
+        return Collections.unmodifiableCollection(parsers.keySet());
     }
 
     private Optional<QuestActionParser> getParser(String namespace, String id) {
