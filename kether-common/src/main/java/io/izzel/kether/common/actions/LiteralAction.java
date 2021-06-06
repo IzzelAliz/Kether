@@ -11,12 +11,12 @@ public class LiteralAction<T> extends QuestAction<T> {
 
     private final Object value;
 
-    public LiteralAction(Object value) {
+    public LiteralAction(String value) {
         this.value = value;
     }
 
-    @Override
     @SuppressWarnings("unchecked")
+    @Override
     public CompletableFuture<T> process(QuestContext.Frame frame) {
         return CompletableFuture.completedFuture((T) value);
     }
@@ -30,7 +30,7 @@ public class LiteralAction<T> extends QuestAction<T> {
 
     public static QuestActionParser parser() {
         return QuestActionParser.of(
-            reader -> new LiteralAction(reader.nextToken()),
+            reader -> new LiteralAction<>(reader.nextToken()),
             KetherCompleters.consume()
         );
     }

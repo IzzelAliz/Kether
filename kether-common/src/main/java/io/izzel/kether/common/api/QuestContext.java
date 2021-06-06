@@ -104,5 +104,7 @@ public interface QuestContext {
         void initialize(Frame frame);
 
         void close();
+
+        VarTable parent();
     }
 }

@@ -339,6 +339,11 @@ public abstract class AbstractQuestContext<This extends AbstractQuestContext<Thi
         }
 
         @Override
+        public VarTable parent() {
+            return parent != null ? parent.variables() : null;
+        }
+
+        @Override
         @SuppressWarnings("unchecked")
         public <T> Optional<T> get(String name) throws CompletionException {
             Object o = map.get(name);
@@ -367,7 +372,11 @@ public abstract class AbstractQuestContext<This extends AbstractQuestContext<Thi
 
         @Override
         public void set(String name, Object value) {
-            this.map.put(name, value);
+            if (name.startsWith("~") || parent() == null) {
+                map.put(name, value);
+            } else {
+                parent().set(name, value);
+            }
         }
 
         @Override
