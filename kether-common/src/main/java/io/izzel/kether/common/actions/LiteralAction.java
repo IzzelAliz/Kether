@@ -11,6 +11,10 @@ public class LiteralAction<T> extends QuestAction<T> {
 
     private final Object value;
 
+    public LiteralAction(Object value) {
+        this.value = value;
+    }
+
     public LiteralAction(String value) {
         this.value = value;
     }
