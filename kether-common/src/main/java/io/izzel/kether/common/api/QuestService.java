@@ -38,9 +38,3 @@ public interface QuestService<CTX extends QuestContext> {
         return (QuestService<C>) ServiceHolder.INSTANCE;
     }
 }
-
-class ServiceHolder {
-
-    static final QuestService<?> INSTANCE =
-        ServiceLoader.load(QuestService.class, ServiceHolder.class.getClassLoader()).iterator().next();
-}
