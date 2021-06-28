@@ -9,7 +9,7 @@ repositories {
 
 dependencies {
     implementation project(':kether-common')
-    implementation 'com.google.guava:guava:18.0'
+    implementation 'com.google.guava:guava:30.1.1-jre'
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'com.zaxxer:HikariCP:3.4.5'
     implementation 'org.yaml:snakeyaml:1.26'
