@@ -7,7 +7,7 @@ import io.izzel.kether.common.util.LocalizedException;
 import java.util.ArrayList;
 import java.util.List;
 
-final class ListType<T> implements ArgType<List<T>> {
+public class ListType<T> implements ArgType<List<T>> {
 
     private final ArgType<T> elementType;
 

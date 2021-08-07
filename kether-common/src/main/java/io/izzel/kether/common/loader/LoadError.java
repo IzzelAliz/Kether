@@ -2,8 +2,6 @@ package io.izzel.kether.common.loader;
 
 import io.izzel.kether.common.util.LocalizedException;
 
-import java.util.Locale;
-
 public enum LoadError {
 
     STRING_NOT_CLOSE,

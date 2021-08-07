@@ -50,11 +50,13 @@ public interface QuestContext {
         }
 
         default Stream<Frame> walkFrames(int depth) {
-            if (depth < 0) return Stream.empty();
-            else if (depth == 0) return Stream.of(this);
-            else return this.children().stream()
-                    .map(it -> it.walkFrames(depth - 1))
-                    .reduce(Stream.of(this), Stream::concat);
+            if (depth < 0) {
+                return Stream.empty();
+            } else if (depth == 0) {
+                return Stream.of(this);
+            } else {
+                return this.children().stream().map(it -> it.walkFrames(depth - 1)).reduce(Stream.of(this), Stream::concat);
+            }
         }
 
         Optional<Frame> parent();

@@ -7,7 +7,7 @@ import io.izzel.kether.common.util.LocalizedException;
 import java.util.Optional;
 import java.util.function.Function;
 
-final class CoerceType<T> implements ArgType<T> {
+public class CoerceType<T> implements ArgType<T> {
 
     private final Function<Object, Optional<T>> function;
     private final String type;

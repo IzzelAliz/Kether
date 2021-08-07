@@ -4,7 +4,7 @@ public abstract class AbstractStringReader {
 
     protected final char[] arr;
     protected int index = 0;
-    private int mark = 0;
+    protected int mark = 0;
 
     public AbstractStringReader(char[] arr) {
         this.arr = arr;

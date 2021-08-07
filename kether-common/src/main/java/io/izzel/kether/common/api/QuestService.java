@@ -35,6 +35,6 @@ public interface QuestService<CTX extends QuestContext> {
 
     @SuppressWarnings("unchecked")
     static <C extends QuestContext> QuestService<C> instance() {
-        return (QuestService<C>) ServiceHolder.INSTANCE;
+        return (QuestService<C>) ServiceHolder.getQuestServiceInstance();
     }
 }

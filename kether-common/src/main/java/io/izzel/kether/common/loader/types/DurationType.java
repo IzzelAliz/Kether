@@ -8,7 +8,7 @@ import io.izzel.kether.common.util.LocalizedException;
 import java.time.Duration;
 import java.util.Locale;
 
-final class DurationType implements ArgType<Duration> {
+public class DurationType implements ArgType<Duration> {
 
     @Override
     public Duration read(QuestReader reader) throws LocalizedException {
