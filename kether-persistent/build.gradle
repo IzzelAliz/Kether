@@ -14,7 +14,7 @@ dependencies {
     implementation 'com.zaxxer:HikariCP:3.4.5'
     implementation 'org.yaml:snakeyaml:1.26'
     implementation 'io.izzel:tools:1.0.0'
-    implementation 'it.unimi.dsi:fastutil:8.5.1'
+    implementation 'it.unimi.dsi:fastutil:8.5.4'
 }
 
 test {
